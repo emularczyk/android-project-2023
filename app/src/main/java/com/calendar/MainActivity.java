@@ -52,7 +52,7 @@ public class MainActivity extends AppCompatActivity {
                 notifyChange();
         });
 
-        adapter = new Adapter( eventList, selectedDateString);
+        adapter = new Adapter(eventList, selectedDateString);
         recyclerView = findViewById(R.id.recyclerView);
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(MainActivity.this);
         recyclerView.setLayoutManager(layoutManager);
