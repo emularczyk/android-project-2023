@@ -1,6 +1,9 @@
 package com.calendar;
 
 import static android.content.ContentValues.TAG;
+import static com.calendar.DateCalculations.convertDateStringToRegardlessOfTheYear;
+import static com.calendar.DateCalculations.getCurrentLocalDate;
+import static com.calendar.EventRepository.saveEvent;
 
 import android.os.Bundle;
 import android.util.Log;
@@ -20,17 +23,14 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Locale;
 import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity {
 
     private EditText eventTitleEditText;
-    private String selectedDateString;
+    private LocalDate selectedDate;
     private DatabaseReference databaseReference;
     private final ArrayList<Event> eventList = new ArrayList<>();
     private Adapter adapter;
@@ -44,15 +44,18 @@ public class MainActivity extends AppCompatActivity {
         CalendarView calendarView = findViewById(R.id.calendarView);
         eventTitleEditText = findViewById(R.id.eventNameText);
         databaseReference = FirebaseDatabase.getInstance().getReference("Calendar");
-        selectedDateString = getCurrentDateString();
+        selectedDate = getCurrentLocalDate();
         notifyChange();
 
         calendarView.setOnDateChangeListener((view, year, month, dayOfMonth) -> {
-                selectedDateString = dateToString(year, month, dayOfMonth);
-                notifyChange();
+            selectedDate = LocalDate.of(year, month + 1, dayOfMonth);
+            notifyChange();
         });
+        setEventRecyclerView();
+    }
 
-        adapter = new Adapter(eventList, selectedDateString);
+    private void setEventRecyclerView() {
+        adapter = new Adapter(eventList, selectedDate.toString());
         recyclerView = findViewById(R.id.recyclerView);
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(MainActivity.this);
         recyclerView.setLayoutManager(layoutManager);
@@ -60,27 +63,14 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.addItemDecoration(new DividerItemDecoration(MainActivity.this, DividerItemDecoration.VERTICAL));
     }
 
-    private String getCurrentDateString() {
-        Date currentDate = Calendar.getInstance().getTime();
-        SimpleDateFormat dateFormat = new SimpleDateFormat("dd-M-yyyy", Locale.ROOT);
-        return dateFormat.format(currentDate);
-    }
-
-    private String dateToString(int year, int month, int dayOfMonth) {
-        return dayOfMonth + "-" + (month + 1) + "-" + year;
-    }
-
     private void notifyChange() {
-        databaseReference.child(selectedDateString).addListenerForSingleValueEvent(new ValueEventListener() {
+        databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 eventList.clear();
-                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                    Event event = new Event(snapshot.getKey(),
-                            Objects.requireNonNull(snapshot.child("description").getValue()).toString());
-                    eventList.add(event);
-                }
-                adapter = new Adapter(eventList, selectedDateString);
+                getEventsFromSnapshot(dataSnapshot, selectedDate.toString());
+                getEventsFromSnapshot(dataSnapshot, convertDateStringToRegardlessOfTheYear(selectedDate.toString()));
+                adapter = new Adapter(eventList, selectedDate.toString());
                 recyclerView.setAdapter(adapter);
             }
 
@@ -91,16 +81,23 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    private void getEventsFromSnapshot(DataSnapshot dataSnapshot, String fromDate) {
+        for (DataSnapshot snapshot : dataSnapshot.child(fromDate).getChildren()) {
+            Event event = new Event(
+                    snapshot.getKey(),
+                    selectedDate,
+                    Objects.requireNonNull(snapshot.child("description").getValue()).toString());
+            eventList.add(event);
+        }
+    }
+
     public void buttonSaveEvent(View view) {
         try {
             String eventTitle = eventTitleEditText.getText().toString();
             if (eventTitleEditText.length() == 0) {
                 eventTitle = "newEvent";
             }
-            databaseReference.child(selectedDateString)
-                    .child(eventTitle)
-                    .child("description")
-                    .setValue("");
+            saveEvent(new Event(eventTitle, selectedDate));
             notifyChange();
         } catch (Exception e) {
             Log.i("Error", "Couldn't save event");

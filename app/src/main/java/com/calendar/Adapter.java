@@ -46,13 +46,13 @@ public class Adapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private RecyclerView.ViewHolder getViewHolder(ViewGroup parent, LayoutInflater inflater) {
         RecyclerView.ViewHolder viewHolder;
         View view = inflater.inflate(R.layout.item, parent, false);
-        viewHolder = new EventItemVH(view);
+        viewHolder = new EventItemViewHolder(view);
         return viewHolder;
     }
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
-        EventItemVH eventItemVH = (EventItemVH) holder;
+        EventItemViewHolder eventItemVH = (EventItemViewHolder) holder;
         eventItemVH.getTitleTextView().setText(eventList.get(holder.getAdapterPosition()).getTitle());
 
         eventItemVH.getDeleteButton().setText(R.string.delete);

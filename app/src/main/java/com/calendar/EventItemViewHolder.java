@@ -6,12 +6,12 @@ import android.widget.TextView;
 
 import androidx.recyclerview.widget.RecyclerView;
 
-public class EventItemVH extends RecyclerView.ViewHolder {
+public class EventItemViewHolder extends RecyclerView.ViewHolder {
     private TextView titleTextView;
 
     private Button deleteButton;
 
-    public EventItemVH(View itemView) {
+    public EventItemViewHolder(View itemView) {
         super(itemView);
 
         titleTextView = itemView.findViewById(R.id.titleTextView);
