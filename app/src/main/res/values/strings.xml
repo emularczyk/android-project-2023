@@ -3,4 +3,15 @@
     <string name="save_event">Save Event</string>
     <string name="delete">Delete</string>
     <string name="enter_title">Enter title</string>
+    <string name="weekly">Weekly</string>
+    <string name="monthly">Monthly</string>
+    <string name="back">BACK</string>
+    <string name="forward">FORWARD</string>
+    <string name="sunday">SUN</string>
+    <string name="monday">MON</string>
+    <string name="tuesday">TUE</string>
+    <string name="wednesday">WED</string>
+    <string name="thursday">THUR</string>
+    <string name="friday">FRI</string>
+    <string name="saturday">SAT</string>
 </resources>

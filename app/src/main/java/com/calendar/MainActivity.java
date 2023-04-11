@@ -1,10 +1,11 @@
 package com.calendar;
 
 import static android.content.ContentValues.TAG;
-import static com.calendar.DateCalculations.convertDateStringToRegardlessOfTheYear;
-import static com.calendar.DateCalculations.getCurrentLocalDate;
+import static com.calendar.CalendarUtils.convertDateStringToRegardlessOfTheYear;
+import static com.calendar.CalendarUtils.getCurrentDateString;
 import static com.calendar.EventRepository.saveEvent;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -30,7 +31,6 @@ import java.util.Objects;
 public class MainActivity extends AppCompatActivity {
 
     private EditText eventTitleEditText;
-    private LocalDate selectedDate;
     private DatabaseReference databaseReference;
     private final ArrayList<Event> eventList = new ArrayList<>();
     private Adapter adapter;
@@ -44,18 +44,43 @@ public class MainActivity extends AppCompatActivity {
         CalendarView calendarView = findViewById(R.id.calendarView);
         eventTitleEditText = findViewById(R.id.eventNameText);
         databaseReference = FirebaseDatabase.getInstance().getReference("Calendar");
-        selectedDate = getCurrentLocalDate();
         notifyChange();
 
         calendarView.setOnDateChangeListener((view, year, month, dayOfMonth) -> {
-            selectedDate = LocalDate.of(year, month + 1, dayOfMonth);
-            notifyChange();
+                CalendarUtils.selectedDate = LocalDate.of(year, month + 1, dayOfMonth);
+                Log.i("CurrentDate", CalendarUtils.formattedDate(CalendarUtils.selectedDate));
+                notifyChange();
         });
         setEventRecyclerView();
     }
 
+    @Override
+    protected void onResume()
+    {
+        super.onResume();
+        notifyChange();
+    }
+
+    public void buttonSaveEvent(View view) {
+        try {
+            String eventTitle = eventTitleEditText.getText().toString();
+            if (eventTitleEditText.length() == 0) {
+                eventTitle = "newEvent";
+            }
+            saveEvent(new Event(eventTitle, CalendarUtils.selectedDate));
+            notifyChange();
+        } catch (Exception e) {
+            Log.i("Error", "Couldn't save event");
+        }
+    }
+
+    public void weeklyAction(View view)
+    {
+        startActivity(new Intent(this, WeekViewActivity.class));
+    }
+
     private void setEventRecyclerView() {
-        adapter = new Adapter(eventList, selectedDate.toString());
+        adapter = new Adapter(eventList, getCurrentDateString());
         recyclerView = findViewById(R.id.recyclerView);
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(MainActivity.this);
         recyclerView.setLayoutManager(layoutManager);
@@ -68,9 +93,9 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 eventList.clear();
-                getEventsFromSnapshot(dataSnapshot, selectedDate.toString());
-                getEventsFromSnapshot(dataSnapshot, convertDateStringToRegardlessOfTheYear(selectedDate.toString()));
-                adapter = new Adapter(eventList, selectedDate.toString());
+                getEventsFromSnapshot(dataSnapshot, getCurrentDateString());
+                getEventsFromSnapshot(dataSnapshot, convertDateStringToRegardlessOfTheYear(getCurrentDateString()));
+                adapter = new Adapter(eventList, getCurrentDateString());
                 recyclerView.setAdapter(adapter);
             }
 
@@ -85,22 +110,9 @@ public class MainActivity extends AppCompatActivity {
         for (DataSnapshot snapshot : dataSnapshot.child(fromDate).getChildren()) {
             Event event = new Event(
                     snapshot.getKey(),
-                    selectedDate,
+                    CalendarUtils.selectedDate,
                     Objects.requireNonNull(snapshot.child("description").getValue()).toString());
             eventList.add(event);
-        }
-    }
-
-    public void buttonSaveEvent(View view) {
-        try {
-            String eventTitle = eventTitleEditText.getText().toString();
-            if (eventTitleEditText.length() == 0) {
-                eventTitle = "newEvent";
-            }
-            saveEvent(new Event(eventTitle, selectedDate));
-            notifyChange();
-        } catch (Exception e) {
-            Log.i("Error", "Couldn't save event");
         }
     }
 }

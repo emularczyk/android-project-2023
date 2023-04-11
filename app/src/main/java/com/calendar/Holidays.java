@@ -74,8 +74,7 @@ public class Holidays {
             q -= 31;
             month++;
         }
-        LocalDate easterSundayDate = LocalDate.of(year, month, q);
-        return easterSundayDate;
+        return LocalDate.of(year, month, q);
     }
 
     private static int calculateD(int year) {
