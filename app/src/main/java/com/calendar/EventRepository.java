@@ -22,7 +22,7 @@ public class EventRepository {
         databaseReference.child(event.getDate().toString())
                 .child(event.getTitle())
                 .child("description")
-                .setValue(event.getDescription());
+                .setValue(event.getNote());
     }
 
     public static void saveEventListRegardlessOfTheYear(List<Event> eventList) {
@@ -37,6 +37,6 @@ public class EventRepository {
         databaseReference.child(dateRegardlessOfYear)
                 .child(event.getTitle())
                 .child("description")
-                .setValue(event.getDescription());
+                .setValue(event.getNote());
     }
 }
