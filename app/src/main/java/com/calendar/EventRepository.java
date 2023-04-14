@@ -1,6 +1,6 @@
 package com.calendar;
 
-import static com.calendar.DateCalculations.convertDateStringToRegardlessOfTheYear;
+import static com.calendar.CalendarUtils.convertDateStringToRegardlessOfTheYear;
 
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
@@ -9,8 +9,8 @@ import java.util.List;
 
 public class EventRepository {
 
-    private static DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("Calendar");
-    ;
+    private static final DatabaseReference databaseReference = FirebaseDatabase.getInstance()
+            .getReference("Calendar");
 
     public static void saveEventList(List<Event> holidayList) {
         for (Event holiday : holidayList) {

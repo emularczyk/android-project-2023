@@ -20,6 +20,7 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.ArrayList;
 
 public class Adapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+
     public ArrayList<Event> eventList;
     private final DatabaseReference databaseReference;
     private final String date;
@@ -81,5 +82,4 @@ public class Adapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             }
         });
     }
-
 }
