@@ -2,6 +2,9 @@ package com.calendar;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
@@ -17,6 +20,12 @@ public class CalendarUtils {
 
     public static String getCurrentDateString() {
         return CalendarUtils.formattedDate(CalendarUtils.selectedDate);
+    }
+
+    public static Long getMiliseconds(LocalDate localDate) {
+        LocalDateTime localDateTime = localDate.atStartOfDay();
+        ZonedDateTime zoneDataTime = ZonedDateTime.of(localDateTime, ZoneId.systemDefault());
+        return zoneDataTime.toInstant().toEpochMilli();
     }
 
     public static String formattedDate(LocalDate date)
