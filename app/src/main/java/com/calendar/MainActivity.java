@@ -3,14 +3,22 @@ package com.calendar;
 import static android.content.ContentValues.TAG;
 import static com.calendar.CalendarUtils.convertDateStringToRegardlessOfTheYear;
 import static com.calendar.CalendarUtils.getCurrentDateString;
-import static com.calendar.EventRepository.saveEvent;
+import static com.calendar.CalendarUtils.getMiliseconds;
+import static com.calendar.CalendarUtils.selectedDate;
 
+import android.app.DatePickerDialog;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.CalendarView;
-import android.widget.EditText;
+import android.widget.DatePicker;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -30,53 +38,77 @@ import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity {
 
-    private EditText eventTitleEditText;
     private DatabaseReference databaseReference;
     private final ArrayList<Event> eventList = new ArrayList<>();
     private Adapter adapter;
     private RecyclerView recyclerView;
+    private CalendarView calendarView;
+    private DatePickerDialog.OnDateSetListener dateSetListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        CalendarView calendarView = findViewById(R.id.calendarView);
-        eventTitleEditText = findViewById(R.id.eventNameText);
+        calendarView = findViewById(R.id.calendarView);
         databaseReference = FirebaseDatabase.getInstance().getReference("Calendar");
+        setEventRecyclerView();
         notifyChange();
 
         calendarView.setOnDateChangeListener((view, year, month, dayOfMonth) -> {
-                CalendarUtils.selectedDate = LocalDate.of(year, month + 1, dayOfMonth);
-                Log.i("CurrentDate", CalendarUtils.formattedDate(CalendarUtils.selectedDate));
-                notifyChange();
+            CalendarUtils.selectedDate = LocalDate.of(year, month + 1, dayOfMonth);
+            notifyChange();
         });
-        setEventRecyclerView();
     }
 
     @Override
-    protected void onResume()
-    {
+    protected void onResume() {
         super.onResume();
+        calendarView.setDate(getMiliseconds(selectedDate));
         notifyChange();
     }
 
-    public void buttonSaveEvent(View view) {
-        try {
-            String eventTitle = eventTitleEditText.getText().toString();
-            if (eventTitleEditText.length() == 0) {
-                eventTitle = "newEvent";
-            }
-            saveEvent(new Event(eventTitle, CalendarUtils.selectedDate));
-            notifyChange();
-        } catch (Exception e) {
-            Log.i("Error", "Couldn't save event");
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.options_menu, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.jumpToDate:
+                DatePickerDialog datePicker = new DatePickerDialog(
+                        this,
+                        android.R.style.Theme_Light_Panel,
+                        new DatePickerDialog.OnDateSetListener() {
+                            @Override
+                            public void onDateSet(DatePicker datePicker, int year, int month, int day) {
+                                CalendarUtils.selectedDate = LocalDate.of(year, month + 1, day);
+                                onResume();
+                            }
+                        },
+                        selectedDate.getYear(),
+                        selectedDate.getMonth().getValue() - 1,
+                        selectedDate.getDayOfMonth());
+                datePicker.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+                datePicker.show();
+                return true;
+            case R.id.countFreeDays:
+                Toast.makeText(this, "count free days is not implemented yet", Toast.LENGTH_SHORT).show();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
         }
     }
 
-    public void weeklyAction(View view)
-    {
+    public void weeklyAction(View view) {
         startActivity(new Intent(this, WeekViewActivity.class));
+    }
+
+    public void createEvent(View view) {
+        startActivity(new Intent(this, CreateEventActivity.class));
     }
 
     private void setEventRecyclerView() {
