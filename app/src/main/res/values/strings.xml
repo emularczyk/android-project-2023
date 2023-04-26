@@ -23,4 +23,6 @@
     <string name="set_reminder_time">Set reminder time</string>
     <string name="set_date">Set the date of the event</string>
     <string name="event_note">Note</string>
+    <string name="drawer_open">open</string>
+    <string name="drawer_close">close</string>
 </resources>
