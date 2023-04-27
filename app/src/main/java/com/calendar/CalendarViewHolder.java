@@ -9,13 +9,13 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.time.LocalDate;
 import java.util.ArrayList;
 
-public class WeeklyCalendarViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+public class CalendarViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
     private final ArrayList<LocalDate> days;
     public final View parentView;
     public final TextView dayOfMonth;
-    private final WeeklyCalendarAdapter.OnItemListener onItemListener;
+    private final CalendarAdapter.OnItemListener onItemListener;
 
-    public WeeklyCalendarViewHolder(@NonNull View itemView, WeeklyCalendarAdapter.OnItemListener onItemListener, ArrayList<LocalDate> days)
+    public CalendarViewHolder(@NonNull View itemView, CalendarAdapter.OnItemListener onItemListener, ArrayList<LocalDate> days)
     {
         super(itemView);
         parentView = itemView.findViewById(R.id.parentView);
@@ -27,6 +27,8 @@ public class WeeklyCalendarViewHolder extends RecyclerView.ViewHolder implements
 
     @Override
     public void onClick(View view) {
-        onItemListener.onItemClick(getAdapterPosition(), days.get(getAdapterPosition()));
+        if (days.get(getAdapterPosition()) != null) {
+            onItemListener.onItemClick(getAdapterPosition(), days.get(getAdapterPosition()));
+        }
     }
 }

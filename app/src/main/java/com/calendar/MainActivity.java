@@ -16,6 +16,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -50,7 +51,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private FragmentManager fragmentManager;
     private DrawerLayout drawer;
     private NavigationView drawerNavigation;
-
+    private int currentSelectedFragment = R.id.month_view;
     private ActionBarDrawerToggle drawerToggle;
 
     @Override
@@ -72,6 +73,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         drawer.setDrawerListener(drawerToggle);
         drawerToggle.syncState();
         drawerNavigation.setNavigationItemSelectedListener(this);
+        drawerNavigation.bringToFront();
+
+        drawerNavigation.setCheckedItem(currentSelectedFragment);
 
         fragmentManager = getSupportFragmentManager();
         fragmentManager.beginTransaction()
@@ -82,10 +86,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         databaseReference = FirebaseDatabase.getInstance().getReference("Calendar");
         setEventRecyclerView();
-    }
-
-    public void weeklyAction(View view) {
-        startActivity(new Intent(this, WeekViewActivity.class));
     }
 
     public void createEvent(View view) {
@@ -139,7 +139,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
-                return drawerToggle != null && drawerToggle.onOptionsItemSelected(item) || super.onOptionsItemSelected(item);
+                return isDrawerNotNullAndItemSelectedOrSuperItemSelected(item);
             case R.id.jumpToDate:
                 DatePickerDialog datePicker = new DatePickerDialog(
                         this,
@@ -151,7 +151,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         selectedDate.getYear(),
                         selectedDate.getMonth().getValue() - 1,
                         selectedDate.getDayOfMonth());
-                datePicker.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+                datePicker.getWindow()
+                          .setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
                 datePicker.show();
                 return true;
             case R.id.countFreeDays:
@@ -165,9 +166,43 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
+    private boolean isDrawerNotNullAndItemSelectedOrSuperItemSelected(@NonNull MenuItem item) {
+        return drawerToggle != null && drawerToggle.onOptionsItemSelected(item)
+                                    || super.onOptionsItemSelected(item);
+    }
+
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-        return false;
+
+        switch (item.getItemId()) {
+            case R.id.week_view:
+                currentSelectedFragment = R.id.week_view;
+                fragmentManager.beginTransaction()
+                        .replace(R.id.calendarFragmentContainer, WeekViewFragment.class, null)
+                        .setReorderingAllowed(true)
+                        .addToBackStack("weekView")
+                        .commit();
+                break;
+            case R.id.month_view:
+                currentSelectedFragment = R.id.month_view;
+                fragmentManager.beginTransaction()
+                    .replace(R.id.calendarFragmentContainer, MonthlyViewFragment.class, null)
+                    .setReorderingAllowed(true)
+                    .addToBackStack("monthView")
+                    .commit();
+                break;
+            case R.id.year_view:
+                currentSelectedFragment = R.id.year_view;
+                fragmentManager.beginTransaction()
+                        .replace(R.id.calendarFragmentContainer, YearViewFragment.class, null)
+                        .setReorderingAllowed(true)
+                        .addToBackStack("yearView")
+                        .commit();
+                break;
+        }
+        drawer.closeDrawer(GravityCompat.START);
+
+        return true;
     }
 
     private void getEventsFromSnapshot(DataSnapshot dataSnapshot, String fromDate) {

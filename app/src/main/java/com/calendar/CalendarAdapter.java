@@ -11,31 +11,33 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.time.LocalDate;
 import java.util.ArrayList;
 
-public class WeeklyCalendarAdapter extends RecyclerView.Adapter<WeeklyCalendarViewHolder> {
+public class CalendarAdapter extends RecyclerView.Adapter<CalendarViewHolder> {
 
     private final ArrayList<LocalDate> days;
     private final OnItemListener onItemListener;
+    private final int numberOfRows;
 
-    public WeeklyCalendarAdapter(ArrayList<LocalDate> days, OnItemListener onItemListener)
+    public CalendarAdapter(ArrayList<LocalDate> days, final int numberOfRows, OnItemListener onItemListener)
     {
         this.days = days;
         this.onItemListener = onItemListener;
+        this.numberOfRows = numberOfRows;
     }
 
     @NonNull
     @Override
-    public WeeklyCalendarViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType)
+    public CalendarViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType)
     {
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
         View view = inflater.inflate(R.layout.calendar_cell, parent, false);
         ViewGroup.LayoutParams layoutParams = view.getLayoutParams();
-        layoutParams.height = (int) parent.getHeight();
+        layoutParams.height = (int) parent.getHeight() / numberOfRows;
 
-        return new WeeklyCalendarViewHolder(view, onItemListener, days);
+        return new CalendarViewHolder(view, onItemListener, days);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull WeeklyCalendarViewHolder holder, int position)
+    public void onBindViewHolder(@NonNull CalendarViewHolder holder, int position)
     {
         final LocalDate date = days.get(position);
         if(date == null)

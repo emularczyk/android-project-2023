@@ -1,0 +1,266 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="380dp"
+    tools:context=".YearViewFragment">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:id="@+id/calendar_header"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <ImageButton
+                android:id="@+id/previous_year_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:src="@drawable/baseline_keyboard_arrow_left_24"
+                android:background="@color/design_default_color_secondary"/>
+
+            <TextView
+                android:id="@+id/yearTextView"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="2"
+                android:text=""
+                android:textAlignment="center"
+                android:textColor="@color/black"
+                android:textSize="24sp" />
+
+            <ImageButton
+                android:id="@+id/next_year_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:src="@drawable/baseline_keyboard_arrow_right_24"
+                android:background="@color/design_default_color_secondary"/>
+
+        </LinearLayout>
+
+        <!--    January-->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAlignment="center"
+            android:textSize="20sp"
+            android:text="January">
+        </TextView>
+
+        <include
+            layout="@layout/weeks_days_names_header"/>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/calendarRecyclerView1"
+            android:layout_width="match_parent"
+            android:layout_height="140dp"
+            android:layout_weight="1"
+            android:nestedScrollingEnabled="false"/>
+
+        <!--    February-->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAlignment="center"
+            android:textSize="20sp"
+            android:text="February">
+        </TextView>
+
+        <include layout="@layout/weeks_days_names_header"/>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/calendarRecyclerView2"
+            android:layout_width="match_parent"
+            android:layout_height="140dp"
+            android:layout_weight="1"
+            android:nestedScrollingEnabled="false"/>
+
+        <!--    March-->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAlignment="center"
+            android:textSize="20sp"
+            android:text="March">
+        </TextView>
+
+        <include layout="@layout/weeks_days_names_header"/>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/calendarRecyclerView3"
+            android:layout_width="match_parent"
+            android:layout_height="140dp"
+            android:layout_weight="1"
+            android:nestedScrollingEnabled="false"/>
+
+        <!--    April-->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAlignment="center"
+            android:textSize="20sp"
+            android:text="April">
+        </TextView>
+
+        <include layout="@layout/weeks_days_names_header"/>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/calendarRecyclerView4"
+            android:layout_width="match_parent"
+            android:layout_height="140dp"
+            android:layout_weight="1"
+            android:nestedScrollingEnabled="false"/>
+
+        <!--    May-->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAlignment="center"
+            android:textSize="20sp"
+            android:text="May">
+        </TextView>
+
+        <include layout="@layout/weeks_days_names_header"/>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/calendarRecyclerView5"
+            android:layout_width="match_parent"
+            android:layout_height="140dp"
+            android:layout_weight="1"
+            android:nestedScrollingEnabled="false"/>
+
+        <!--    June-->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAlignment="center"
+            android:textSize="20sp"
+            android:text="June">
+        </TextView>
+
+        <include layout="@layout/weeks_days_names_header"/>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/calendarRecyclerView6"
+            android:layout_width="match_parent"
+            android:layout_height="140dp"
+            android:layout_weight="1"
+            android:nestedScrollingEnabled="false"/>
+
+        <!--    July-->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAlignment="center"
+            android:textSize="20sp"
+            android:text="July">
+        </TextView>
+
+        <include layout="@layout/weeks_days_names_header"/>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/calendarRecyclerView7"
+            android:layout_width="match_parent"
+            android:layout_height="140dp"
+            android:layout_weight="1"
+            android:nestedScrollingEnabled="false"/>
+
+        <!--    August-->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAlignment="center"
+            android:textSize="20sp"
+            android:text="August">
+        </TextView>
+
+        <include layout="@layout/weeks_days_names_header"/>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/calendarRecyclerView8"
+            android:layout_width="match_parent"
+            android:layout_height="140dp"
+            android:layout_weight="1"
+            android:nestedScrollingEnabled="false"/>
+
+        <!--    September-->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAlignment="center"
+            android:textSize="20sp"
+            android:text="September">
+        </TextView>
+
+        <include layout="@layout/weeks_days_names_header"/>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/calendarRecyclerView9"
+            android:layout_width="match_parent"
+            android:layout_height="140dp"
+            android:layout_weight="1"
+            android:nestedScrollingEnabled="false"/>
+
+        <!--    October-->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAlignment="center"
+            android:textSize="20sp"
+            android:text="October">
+        </TextView>
+
+        <include layout="@layout/weeks_days_names_header"/>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/calendarRecyclerView10"
+            android:layout_width="match_parent"
+            android:layout_height="140dp"
+            android:layout_weight="1"
+            android:nestedScrollingEnabled="false"/>
+
+        <!--    November-->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAlignment="center"
+            android:textSize="20sp"
+            android:text="November">
+        </TextView>
+
+        <include layout="@layout/weeks_days_names_header"/>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/calendarRecyclerView11"
+            android:layout_width="match_parent"
+            android:layout_height="140dp"
+            android:layout_weight="1"
+            android:nestedScrollingEnabled="false"/>
+
+        <!--    December-->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAlignment="center"
+            android:textSize="20sp"
+            android:text="December">
+        </TextView>
+
+        <include layout="@layout/weeks_days_names_header"/>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/calendarRecyclerView12"
+            android:layout_width="match_parent"
+            android:layout_height="140dp"
+            android:layout_weight="1"
+            android:nestedScrollingEnabled="false"/>
+
+    </LinearLayout>
+</ScrollView>
