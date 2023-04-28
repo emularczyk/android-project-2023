@@ -4,6 +4,7 @@ import static android.content.ContentValues.TAG;
 import static com.calendar.CalendarUtils.convertDateStringToRegardlessOfTheYear;
 import static com.calendar.CalendarUtils.getCurrentDateString;
 import static com.calendar.CalendarUtils.selectedDate;
+import static java.lang.Boolean.parseBoolean;
 
 import android.app.DatePickerDialog;
 import android.content.Intent;
@@ -31,13 +32,14 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity {
 
     private DatabaseReference databaseReference;
-    private final ArrayList<Event> eventList = new ArrayList<>();
+    private static final ArrayList<Event> eventList = new ArrayList<>();
     private Adapter adapter;
     private RecyclerView recyclerView;
 
@@ -66,8 +68,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void setEventRecyclerView() {
-        Log.i("Events", String.valueOf(eventList.size()));
-        adapter = new Adapter(eventList, getCurrentDateString());
+        adapter = new Adapter(eventList, getCurrentDateString(), MainActivity.this);
         recyclerView = findViewById(R.id.recyclerView);
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(MainActivity.this);
         recyclerView.setLayoutManager(layoutManager);
@@ -82,7 +83,7 @@ public class MainActivity extends AppCompatActivity {
                 eventList.clear();
                 getEventsFromSnapshot(dataSnapshot, getCurrentDateString());
                 getEventsFromSnapshot(dataSnapshot, convertDateStringToRegardlessOfTheYear(getCurrentDateString()));
-                adapter = new Adapter(eventList, getCurrentDateString());
+                adapter = new Adapter(eventList, getCurrentDateString(), MainActivity.this);
                 recyclerView.setAdapter(adapter);
             }
 
@@ -118,7 +119,10 @@ public class MainActivity extends AppCompatActivity {
                 datePicker.show();
                 return true;
             case R.id.countFreeDays:
-                Toast.makeText(this, "count free days is not implemented yet", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Count free days is not implemented yet", Toast.LENGTH_SHORT).show();
+                return true;
+            case R.id.filerEvents:
+                Toast.makeText(this, "Filtering events is not implemented yet", Toast.LENGTH_SHORT).show();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -127,11 +131,35 @@ public class MainActivity extends AppCompatActivity {
 
     private void getEventsFromSnapshot(DataSnapshot dataSnapshot, String fromDate) {
         for (DataSnapshot snapshot : dataSnapshot.child(fromDate).getChildren()) {
+            String id = snapshot.getKey();
+            String title = Objects.requireNonNull(snapshot.child("title").getValue()).toString();
+            String date = fromDate;
+            String note = snapshot.child("note").exists() ? snapshot.child("note").getValue().toString() : "";
+            Boolean isSystemEvent = parseBoolean(Objects.requireNonNull(snapshot.child("isSystemEvent").getValue()).toString());
+            Boolean isAnnual = fromDate.contains("XXXX-");
+            Boolean isFree = parseBoolean(Objects.requireNonNull(snapshot.child("isSystemEvent").getValue()).toString());
+            Boolean isReminderOn = parseBoolean(Objects.requireNonNull(snapshot.child("isSystemEvent").getValue()).toString());
+            LocalTime reminderTimer = snapshot.child("reminderTime").exists() ?getReminderTime(snapshot): null;
+
             Event event = new Event(
-                    snapshot.getKey(),
-                    CalendarUtils.selectedDate,
-                    Objects.requireNonNull(snapshot.child("description").getValue()).toString());
+                    id,
+                    title,
+                    date,
+                    note,
+                    isSystemEvent,
+                    isAnnual,
+                    isFree,
+                    isReminderOn,
+                    reminderTimer);
             eventList.add(event);
         }
+    }
+
+    private LocalTime getReminderTime(DataSnapshot snapshot){
+        return  LocalTime.of(Integer.parseInt(snapshot.child("reminderTime").child("hour").getValue().toString()),
+                Integer.parseInt(snapshot.child("reminderTime").child("minute").getValue().toString()));
+    }
+    public static ArrayList<Event> getEventList() {
+        return eventList;
     }
 }

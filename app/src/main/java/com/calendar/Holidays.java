@@ -14,31 +14,40 @@ public class Holidays {
 
         holidays.add(new Event(
                 "Nowy Rok",
-                LocalDate.of(1, 1, 1)));
+                LocalDate.of(1, 1, 1).toString(),
+                true));
         holidays.add(new Event(
                 "Święto Trzech Króli",
-                LocalDate.of(2023, 1, 6)));
+                LocalDate.of(2023, 1, 6).toString(),
+                true));
         holidays.add(new Event(
                 "Święto Pracy",
-                LocalDate.of(1, 5, 1)));
+                LocalDate.of(1, 5, 1).toString(),
+                true));
         holidays.add(new Event(
                 "Święto Konstytucji 3 Maja",
-                LocalDate.of(1, 5, 3)));
+                LocalDate.of(1, 5, 3).toString()
+                , true));
         holidays.add(new Event(
                 "Wniebowzięcie Najświętszej Maryi Panny",
-                LocalDate.of(1, 8, 15)));
+                LocalDate.of(1, 8, 15).toString(),
+                true));
         holidays.add(new Event(
                 "Wszystkich Świętych",
-                LocalDate.of(1, 11, 1)));
+                LocalDate.of(1, 11, 1).toString(),
+                true));
         holidays.add(new Event(
                 "Święto Niepodległości",
-                LocalDate.of(1, 11, 11)));
+                LocalDate.of(1, 11, 11).toString()
+                , true));
         holidays.add(new Event(
                 " Boże Narodzenie",
-                LocalDate.of(1, 12, 25)));
+                LocalDate.of(1, 12, 25).toString()
+                , true));
         holidays.add(new Event(
                 "Drugi dzień Bożego Narodzenia",
-                LocalDate.of(1, 12, 26)));
+                LocalDate.of(1, 12, 26).toString()
+                , true));
 
         saveEventListRegardlessOfTheYear(holidays);
     }
@@ -50,16 +59,20 @@ public class Holidays {
 
         fluidHolidays.add(new Event(
                 "Wielkanoc",
-                easterSundayDate));
+                easterSundayDate.toString(),
+                true));
         fluidHolidays.add(new Event(
                 "Poniedziałek Wielkanocny",
-                easterSundayDate.plusDays(1)));
+                easterSundayDate.plusDays(1).toString(),
+                true));
         fluidHolidays.add(new Event(
                 "Zielone Świątki",
-                easterSundayDate.plusWeeks(7)));
+                easterSundayDate.plusWeeks(7).toString(),
+                true));
         fluidHolidays.add(new Event(
                 "Boże Ciało",
-                easterSundayDate.plusWeeks(9).minusDays(3)));
+                easterSundayDate.plusWeeks(9).minusDays(3).toString(),
+                true));
 
         saveEventList(fluidHolidays);
     }

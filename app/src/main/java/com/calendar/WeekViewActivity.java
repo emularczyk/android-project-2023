@@ -1,16 +1,10 @@
 package com.calendar;
 
 import static android.content.ContentValues.TAG;
+import static com.calendar.CalendarUtils.convertDateStringToRegardlessOfTheYear;
 import static com.calendar.CalendarUtils.daysInWeekArray;
 import static com.calendar.CalendarUtils.getCurrentDateString;
 import static com.calendar.CalendarUtils.monthYearFromDate;
-import static com.calendar.CalendarUtils.convertDateStringToRegardlessOfTheYear;
-
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -19,6 +13,12 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -30,8 +30,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Objects;
 
-public class WeekViewActivity extends AppCompatActivity implements WeeklyCalendarAdapter.OnItemListener
-{
+public class WeekViewActivity extends AppCompatActivity implements WeeklyCalendarAdapter.OnItemListener {
     private TextView monthYearText;
     private EditText eventTitleEditText;
     private RecyclerView calendarRecyclerView;
@@ -41,8 +40,7 @@ public class WeekViewActivity extends AppCompatActivity implements WeeklyCalenda
     private final ArrayList<Event> eventList = new ArrayList<>();
 
     @Override
-    protected void onCreate(Bundle savedInstanceState)
-    {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_week_view);
         databaseReference = FirebaseDatabase.getInstance().getReference("Calendar");
@@ -56,15 +54,13 @@ public class WeekViewActivity extends AppCompatActivity implements WeeklyCalenda
 
     }
 
-    private void initWidgets()
-    {
+    private void initWidgets() {
         calendarRecyclerView = findViewById(R.id.calendarRecyclerView);
         monthYearText = findViewById(R.id.monthYearTV);
         eventRecyclerView = findViewById(R.id.eventRecyclerView);
     }
 
-    private void setWeekView()
-    {
+    private void setWeekView() {
         monthYearText.setText(monthYearFromDate(CalendarUtils.selectedDate));
         ArrayList<LocalDate> days = daysInWeekArray(CalendarUtils.selectedDate);
 
@@ -76,21 +72,18 @@ public class WeekViewActivity extends AppCompatActivity implements WeeklyCalenda
     }
 
 
-    public void previousWeekAction(View view)
-    {
+    public void previousWeekAction(View view) {
         CalendarUtils.selectedDate = CalendarUtils.selectedDate.minusWeeks(1);
         setWeekView();
     }
 
-    public void nextWeekAction(View view)
-    {
+    public void nextWeekAction(View view) {
         CalendarUtils.selectedDate = CalendarUtils.selectedDate.plusWeeks(1);
         setWeekView();
     }
 
     @Override
-    public void onItemClick(int position, LocalDate date)
-    {
+    public void onItemClick(int position, LocalDate date) {
         CalendarUtils.selectedDate = date;
         Log.i("CurrentDate", CalendarUtils.formattedDate(CalendarUtils.selectedDate));
         setWeekView();
@@ -98,14 +91,12 @@ public class WeekViewActivity extends AppCompatActivity implements WeeklyCalenda
     }
 
     @Override
-    protected void onResume()
-    {
+    protected void onResume() {
         super.onResume();
         setEventAdapter();
     }
 
-    public void monthlyAction(View view)
-    {
+    public void monthlyAction(View view) {
         startActivity(new Intent(this, MainActivity.class));
     }
 
@@ -126,9 +117,8 @@ public class WeekViewActivity extends AppCompatActivity implements WeeklyCalenda
         });
     }
 
-    private void setEventAdapter()
-    {
-        Adapter eventAdapter = new Adapter(eventList, getCurrentDateString());
+    private void setEventAdapter() {
+        Adapter eventAdapter = new Adapter(eventList, getCurrentDateString(), getApplicationContext());
         Log.i("Events", String.valueOf(eventList.size()));
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getApplicationContext());
         eventRecyclerView.setLayoutManager(layoutManager);
@@ -138,23 +128,14 @@ public class WeekViewActivity extends AppCompatActivity implements WeeklyCalenda
     private void getEventsFromSnapshot(DataSnapshot dataSnapshot, String fromDate) {
         for (DataSnapshot snapshot : dataSnapshot.child(fromDate).getChildren()) {
             Event event = new Event(
-                    snapshot.getKey(),
-                    CalendarUtils.selectedDate,
-                    Objects.requireNonNull(snapshot.child("description").getValue()).toString());
+                    Objects.requireNonNull(snapshot.child("title").getValue()).toString(),
+                    CalendarUtils.selectedDate.toString(),
+                    Objects.requireNonNull(snapshot.child("note").getValue()).toString());
             eventList.add(event);
         }
     }
 
     private void saveEvent() {
-        try {
-            String eventTitle = eventTitleEditText.getText().toString();
-            if (eventTitleEditText.length() == 0) {
-                eventTitle = "newEvent";
-            }
-            EventRepository.saveEvent(new Event(eventTitle, CalendarUtils.selectedDate));
-            notifyChange();
-        } catch (Exception e) {
-            Log.i("Error", "Couldn't save event");
-        }
+        //todo Will be reduced by adding fragment
     }
 }
