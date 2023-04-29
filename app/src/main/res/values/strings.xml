@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">Calendar</string>
     <string name="save_event">Save Event</string>
+    <string name="edit">Edit</string>
     <string name="delete">Delete</string>
     <string name="enter_title">Enter the event title</string>
     <string name="enter_note">Enter the event note</string>
@@ -19,6 +20,7 @@
     <string name="freeText">Set as free from work</string>
     <string name="ReminderText">Turn on event reminder</string>
     <string name="show_all_settings">Show advanced settings</string>
-    <string name="set_time">Set the time of the event</string>
+    <string name="set_reminder_time">Set reminder time</string>
     <string name="set_date">Set the date of the event</string>
+    <string name="event_note">Note</string>
 </resources>

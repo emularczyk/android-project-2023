@@ -1,7 +1,9 @@
 package com.calendar;
 
+import static android.content.ContentValues.TAG;
 import static com.calendar.EventRepository.saveEvent;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -9,13 +11,21 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.DatePicker;
 import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.TimePicker;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.UUID;
 
 public class CreateEventActivity extends AppCompatActivity {
 
@@ -24,12 +34,14 @@ public class CreateEventActivity extends AppCompatActivity {
     EditText noteText;
     CheckBox advancedSettingsCheckBox;
     TimePicker timePicker;
-    TextView clockText;
     CheckBox annualCheckBox;
     CheckBox reminderCheckBox;
+    CheckBox reminderTimeCheckBox;
     CheckBox freeCheckBox;
     Button saveButton;
     private LocalDate selectedDate;
+    private String eventId = UUID.randomUUID().toString();
+    private Event oldEvent = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,6 +50,95 @@ public class CreateEventActivity extends AppCompatActivity {
         initWidgets();
         setupCalendar();
         setupTimer();
+        updateExtras();
+    }
+
+    public void showAdvancedOptions(View view) {
+        if (advancedSettingsCheckBox.isChecked()) {
+            annualCheckBox.setVisibility(View.VISIBLE);
+            reminderCheckBox.setVisibility(View.VISIBLE);
+            freeCheckBox.setVisibility(View.VISIBLE);
+        } else {
+            annualCheckBox.setVisibility(View.INVISIBLE);
+            reminderCheckBox.setVisibility(View.INVISIBLE);
+            freeCheckBox.setVisibility(View.INVISIBLE);
+        }
+    }
+
+    public void showReminderTimeCheckBox(View view) {
+        if (reminderCheckBox.isChecked()) {
+            reminderTimeCheckBox.setVisibility(View.VISIBLE);
+        } else {
+            reminderTimeCheckBox.setVisibility(View.INVISIBLE);
+        }
+    }
+
+    public void showReminderClock(View view) {
+        if (reminderTimeCheckBox.isChecked()) {
+            timePicker.setVisibility(View.VISIBLE);
+        } else {
+            timePicker.setVisibility(View.INVISIBLE);
+        }
+    }
+
+    public void buttonSaveEvent(View view) {
+        Event eventToSave = createEvent();
+        if (shouldDeleteOldEvent(oldEvent, eventToSave)) {
+            try {
+                deleteEvent(oldEvent);
+            } catch (Exception e) {
+                Log.i("Error", "Couldn't move event");
+            }
+        }
+        try {
+            saveEvent(eventToSave);
+        } catch (Exception e) {
+            Log.i("Error", "Couldn't save event");
+        }
+        finish();
+    }
+
+    private boolean shouldDeleteOldEvent(Event oldEvent, Event newEvent) {
+        if (oldEvent != null) {
+            if (oldEvent.isAnnual() != newEvent.isAnnual() ||
+                    oldEvent.getDate() != newEvent.getDate()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void updateExtras() {
+        Intent intent = getIntent();
+        if (intent.getExtras() != null) {
+            oldEvent = (Event) intent.getExtras().getSerializable("event");
+            eventId = oldEvent.getId();
+            titleText.setText(oldEvent.getTitle());
+            noteText.setText(oldEvent.getNote());
+            if (containsAdvancedSettings(oldEvent)) {
+                advancedSettingsCheckBox.setChecked(true);
+            }
+            annualCheckBox.setChecked(oldEvent.isAnnual());
+            reminderCheckBox.setChecked(oldEvent.isReminderOn());
+            freeCheckBox.setChecked(oldEvent.isFreeFromWork());
+            if (oldEvent.getReminderTime() != null) {
+                reminderTimeCheckBox.setChecked(true);
+                timePicker.setHour(oldEvent.getReminderTime().getHour());
+                timePicker.setHour(oldEvent.getReminderTime().getMinute());
+            }
+            reloadViews();
+        }
+    }
+
+    private boolean containsAdvancedSettings(Event event) {
+        return event.isAnnual() || event.isReminderOn() || event.isFreeFromWork();
+    }
+
+    private void reloadViews() {
+        View view = new View(CreateEventActivity.this);
+        showAdvancedOptions(view);
+        showReminderTimeCheckBox(view);
+        showReminderClock(view);
     }
 
     private void initWidgets() {
@@ -48,9 +149,9 @@ public class CreateEventActivity extends AppCompatActivity {
         advancedSettingsCheckBox = findViewById(R.id.advancedSettings);
         annualCheckBox = findViewById(R.id.annual);
         reminderCheckBox = findViewById(R.id.setReminder);
+        reminderTimeCheckBox = findViewById(R.id.reminderTimeCheckBox);
         freeCheckBox = findViewById(R.id.free);
         saveButton = findViewById(R.id.saveEventButton);
-        clockText = findViewById(R.id.clockText);
     }
 
     private void setupCalendar() {
@@ -65,6 +166,8 @@ public class CreateEventActivity extends AppCompatActivity {
                     }
                 });
         selectedDate = CalendarUtils.selectedDate;
+        timePicker.setHour(LocalTime.now().getHour());
+        timePicker.setHour(LocalTime.now().getMinute());
     }
 
     private void setupTimer() {
@@ -74,31 +177,38 @@ public class CreateEventActivity extends AppCompatActivity {
         timePicker.setMinute(currentTimer.getMinute());
     }
 
-    public void buttonSaveEvent(View view) {
-        try {
-            saveEvent(new Event(
-                    titleText.getText().toString(),
-                    selectedDate,
-                    noteText.getText().toString()));
-        } catch (Exception e) {
-            Log.i("Error", "Couldn't save event");
-        }
-        finish();
+    private void deleteEvent(Event event) {
+        DatabaseReference databaseReference = FirebaseDatabase
+                .getInstance()
+                .getReference("Calendar");
+        Query eventQuery = databaseReference.child(event.getDate()).child(event.getId());
+        eventQuery.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                dataSnapshot.getRef().removeValue();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                Log.e(TAG, "edit canceled", databaseError.toException());
+            }
+        });
     }
 
-    public void showAdvancedOptions(View view) {
+    private Event createEvent() {
+        Event event = new Event(
+                eventId,
+                titleText.getText().toString(),
+                selectedDate.toString(),
+                noteText.getText().toString());
         if (advancedSettingsCheckBox.isChecked()) {
-            timePicker.setVisibility(View.VISIBLE);
-            annualCheckBox.setVisibility(View.VISIBLE);
-            reminderCheckBox.setVisibility(View.VISIBLE);
-            freeCheckBox.setVisibility(View.VISIBLE);
-            clockText.setVisibility(View.VISIBLE);
-        } else {
-            timePicker.setVisibility(View.INVISIBLE);
-            annualCheckBox.setVisibility(View.INVISIBLE);
-            reminderCheckBox.setVisibility(View.INVISIBLE);
-            freeCheckBox.setVisibility(View.INVISIBLE);
-            clockText.setVisibility(View.INVISIBLE);
+            event.setAnnual(annualCheckBox.isChecked());
+            event.setFreeFromWork(freeCheckBox.isChecked());
+            event.setReminderOn(reminderCheckBox.isChecked());
         }
+        if (reminderTimeCheckBox.isChecked()) {
+            event.setReminderTime(LocalTime.of(timePicker.getHour(), timePicker.getMinute()));
+        }
+        return event;
     }
 }

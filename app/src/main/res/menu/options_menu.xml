@@ -8,5 +8,8 @@
     <item android:id="@+id/countFreeDays"
         android:title="countFreeDays"
         app:showAsAction="never"/>
+    <item android:id="@+id/filerEvents"
+        android:title="filerEvents"
+        app:showAsAction="never"/>
 
 </menu>

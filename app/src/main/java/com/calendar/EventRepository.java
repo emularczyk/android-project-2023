@@ -19,24 +19,39 @@ public class EventRepository {
     }
 
     public static void saveEvent(Event event) {
-        databaseReference.child(event.getDate().toString())
-                .child(event.getTitle())
-                .child("description")
-                .setValue(event.getNote());
+        if (event.isAnnual()) {
+            saveAnnualEvent(event);
+        } else {
+            saveSingularEvent(event);
+        }
+    }
+
+    private static void saveSingularEvent(Event event) {
+        DatabaseReference eventReference = databaseReference.child(event.getDate().toString())
+                .child(event.getId());
+        setEventValues(eventReference, event);
     }
 
     public static void saveEventListRegardlessOfTheYear(List<Event> eventList) {
         for (Event holiday : eventList) {
-            saveEventRegardlessOfTheYear(holiday);
+            saveAnnualEvent(holiday);
         }
     }
 
-    public static void saveEventRegardlessOfTheYear(Event event) {
+    private static void saveAnnualEvent(Event event) {
         String dateRegardlessOfYear;
         dateRegardlessOfYear = convertDateStringToRegardlessOfTheYear(event.getDate().toString());
-        databaseReference.child(dateRegardlessOfYear)
-                .child(event.getTitle())
-                .child("description")
-                .setValue(event.getNote());
+        DatabaseReference eventReference = databaseReference.child(dateRegardlessOfYear)
+                .child(event.getId());
+        setEventValues(eventReference, event);
+    }
+
+    private static void setEventValues(DatabaseReference eventReference, Event event) {
+        eventReference.child("title").setValue(event.getTitle());
+        eventReference.child("isSystemEvent").setValue(event.isSystemEvent());
+        eventReference.child("note").setValue(event.getNote());
+        eventReference.child("isFree").setValue(event.isFreeFromWork());
+        eventReference.child("isReminderOn").setValue(event.isReminderOn());
+        eventReference.child("reminderTime").setValue(event.getReminderTime());
     }
 }
