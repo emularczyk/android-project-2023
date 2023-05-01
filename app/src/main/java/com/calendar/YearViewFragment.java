@@ -1,6 +1,8 @@
 package com.calendar;
 
 import static com.calendar.CalendarUtils.daysInMonthInYearArray;
+import static com.calendar.CalendarUtils.getMilliseconds;
+import static com.calendar.CalendarUtils.selectedDate;
 import static com.calendar.CalendarUtils.yearFromDate;
 
 import android.os.Bundle;
@@ -26,6 +28,13 @@ public class YearViewFragment extends Fragment implements CalendarAdapter.OnItem
     private final ArrayList<RecyclerView> monthsRecyclerView = new ArrayList<>();
 
     public YearViewFragment() {
+    }
+
+    @Override
+    public void onResume() {
+        setYearView();
+        ((MainActivity)getActivity()).notifyChange();
+        super.onResume();
     }
 
     @Nullable

@@ -16,7 +16,6 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -25,6 +24,7 @@ import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -79,7 +79,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         fragmentManager = getSupportFragmentManager();
         fragmentManager.beginTransaction()
-                .replace(R.id.calendarFragmentContainer, MonthlyViewFragment.class, null)
+                .replace(R.id.calendarFragmentContainer, MonthlyViewFragment.class, null, "calendarFragment")
                 .setReorderingAllowed(true)
                 .addToBackStack("monthView") // name can be null
                 .commit();
@@ -147,6 +147,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         (datePicker1, year, month, day) -> {
                             CalendarUtils.selectedDate = LocalDate.of(year, month + 1, day);
                             onResume();
+                            Fragment calendarFragment = fragmentManager.findFragmentByTag("calendarFragment");
+                            if(isAddedToItsActivity(calendarFragment)) {
+                                calendarFragment.onResume();
+                            }
                         },
                         selectedDate.getYear(),
                         selectedDate.getMonth().getValue() - 1,
@@ -166,6 +170,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
+    private boolean isAddedToItsActivity(Fragment calendarFragment) {
+        return calendarFragment != null && calendarFragment.isAdded();
+    }
+
     private boolean isDrawerNotNullAndItemSelectedOrSuperItemSelected(@NonNull MenuItem item) {
         return drawerToggle != null && drawerToggle.onOptionsItemSelected(item)
                                     || super.onOptionsItemSelected(item);
@@ -178,7 +186,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             case R.id.week_view:
                 currentSelectedFragment = R.id.week_view;
                 fragmentManager.beginTransaction()
-                        .replace(R.id.calendarFragmentContainer, WeekViewFragment.class, null)
+                        .replace(R.id.calendarFragmentContainer, WeekViewFragment.class, null, "calendarFragment")
                         .setReorderingAllowed(true)
                         .addToBackStack("weekView")
                         .commit();
@@ -186,7 +194,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             case R.id.month_view:
                 currentSelectedFragment = R.id.month_view;
                 fragmentManager.beginTransaction()
-                    .replace(R.id.calendarFragmentContainer, MonthlyViewFragment.class, null)
+                    .replace(R.id.calendarFragmentContainer, MonthlyViewFragment.class, null, "calendarFragment")
                     .setReorderingAllowed(true)
                     .addToBackStack("monthView")
                     .commit();
@@ -194,7 +202,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             case R.id.year_view:
                 currentSelectedFragment = R.id.year_view;
                 fragmentManager.beginTransaction()
-                        .replace(R.id.calendarFragmentContainer, YearViewFragment.class, null)
+                        .replace(R.id.calendarFragmentContainer, YearViewFragment.class, null, "calendarFragment")
                         .setReorderingAllowed(true)
                         .addToBackStack("yearView")
                         .commit();
