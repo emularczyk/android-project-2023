@@ -33,7 +33,9 @@
             android:layout_marginEnd="30dp"
             android:layout_marginTop="37dp"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            android:name="com.calendar.MonthlyViewFragment"
+            tools:layout="@layout/fragment_monthly_view" />
 
         <Button
             android:id="@+id/createEvent"
@@ -52,13 +54,16 @@
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerView"
-            android:layout_width="354dp"
-            android:layout_height="276dp"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.491"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/createEvent" />
+            app:layout_constraintTop_toBottomOf="@+id/createEvent"
+            android:layout_marginTop="8dp"
+            android:layout_marginStart="18dp"
+            android:layout_marginEnd="18dp"/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.drawerlayout.widget.DrawerLayout>
