@@ -12,9 +12,6 @@
         android:theme="@style/Theme.Calendar"
         tools:targetApi="31">
         <activity
-            android:name=".WeekViewActivity"
-            android:exported="false" />
-        <activity
             android:name=".CreateEventActivity"
             android:exported="false" />
         <activity

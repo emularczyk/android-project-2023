@@ -16,15 +16,21 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -36,31 +42,50 @@ import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Objects;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     private DatabaseReference databaseReference;
     private static final ArrayList<Event> eventList = new ArrayList<>();
     private Adapter adapter;
     private RecyclerView recyclerView;
+    private FragmentManager fragmentManager;
+    private DrawerLayout drawer;
+    private NavigationView drawerNavigation;
+    private int currentSelectedFragment = R.id.month_view;
+    private ActionBarDrawerToggle drawerToggle;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        FragmentManager fragmentManager = getSupportFragmentManager();
+        ActionBar actionBar = getSupportActionBar();
+        actionBar.setHomeAsUpIndicator(R.drawable.ic_menu);
+        actionBar.setDisplayHomeAsUpEnabled(true);
+
+        drawer = findViewById(R.id.drawer_layout);
+        drawerNavigation = findViewById(R.id.navigationView);
+
+        drawerToggle = new ActionBarDrawerToggle(this, drawer,
+                R.string.drawer_open, R.string.drawer_close);
+
+        drawerToggle.setDrawerIndicatorEnabled(true);
+        drawer.setDrawerListener(drawerToggle);
+        drawerToggle.syncState();
+        drawerNavigation.setNavigationItemSelectedListener(this);
+        drawerNavigation.bringToFront();
+
+        drawerNavigation.setCheckedItem(currentSelectedFragment);
+
+        fragmentManager = getSupportFragmentManager();
         fragmentManager.beginTransaction()
                 .replace(R.id.calendarFragmentContainer, MonthlyViewFragment.class, null)
                 .setReorderingAllowed(true)
-                .addToBackStack("name") // name can be null
+                .addToBackStack("monthView") // name can be null
                 .commit();
 
         databaseReference = FirebaseDatabase.getInstance().getReference("Calendar");
         setEventRecyclerView();
-    }
-
-    public void weeklyAction(View view) {
-        startActivity(new Intent(this, WeekViewActivity.class));
     }
 
     public void createEvent(View view) {
@@ -95,6 +120,15 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
+    public void onBackPressed() {
+        if (drawer.isDrawerOpen(GravityCompat.START)) {
+            drawer.closeDrawer(GravityCompat.START);
+        } else {
+            super.onBackPressed();
+        }
+    }
+
+    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.options_menu, menu);
@@ -104,6 +138,8 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
+            case android.R.id.home:
+                return isDrawerNotNullAndItemSelectedOrSuperItemSelected(item);
             case R.id.jumpToDate:
                 DatePickerDialog datePicker = new DatePickerDialog(
                         this,
@@ -115,7 +151,8 @@ public class MainActivity extends AppCompatActivity {
                         selectedDate.getYear(),
                         selectedDate.getMonth().getValue() - 1,
                         selectedDate.getDayOfMonth());
-                datePicker.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+                datePicker.getWindow()
+                          .setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
                 datePicker.show();
                 return true;
             case R.id.countFreeDays:
@@ -127,6 +164,45 @@ public class MainActivity extends AppCompatActivity {
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    private boolean isDrawerNotNullAndItemSelectedOrSuperItemSelected(@NonNull MenuItem item) {
+        return drawerToggle != null && drawerToggle.onOptionsItemSelected(item)
+                                    || super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+
+        switch (item.getItemId()) {
+            case R.id.week_view:
+                currentSelectedFragment = R.id.week_view;
+                fragmentManager.beginTransaction()
+                        .replace(R.id.calendarFragmentContainer, WeekViewFragment.class, null)
+                        .setReorderingAllowed(true)
+                        .addToBackStack("weekView")
+                        .commit();
+                break;
+            case R.id.month_view:
+                currentSelectedFragment = R.id.month_view;
+                fragmentManager.beginTransaction()
+                    .replace(R.id.calendarFragmentContainer, MonthlyViewFragment.class, null)
+                    .setReorderingAllowed(true)
+                    .addToBackStack("monthView")
+                    .commit();
+                break;
+            case R.id.year_view:
+                currentSelectedFragment = R.id.year_view;
+                fragmentManager.beginTransaction()
+                        .replace(R.id.calendarFragmentContainer, YearViewFragment.class, null)
+                        .setReorderingAllowed(true)
+                        .addToBackStack("yearView")
+                        .commit();
+                break;
+        }
+        drawer.closeDrawer(GravityCompat.START);
+
+        return true;
     }
 
     private void getEventsFromSnapshot(DataSnapshot dataSnapshot, String fromDate) {

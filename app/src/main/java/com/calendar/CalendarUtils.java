@@ -1,7 +1,6 @@
 package com.calendar;
 
 import java.time.DayOfWeek;
-import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -41,10 +40,16 @@ public class CalendarUtils {
         return date.format(formatter);
     }
 
+    public static String yearFromDate(LocalDate date)
+    {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy");
+        return date.format(formatter);
+    }
+
     public static ArrayList<LocalDate> daysInWeekArray(LocalDate selectedDate)
     {
         ArrayList<LocalDate> days = new ArrayList<>();
-        LocalDate current = sundayForDate(selectedDate);
+        LocalDate current = mondayForDate(selectedDate);
         LocalDate endDate = current.plusWeeks(1);
 
         while (current.isBefore(endDate))
@@ -55,18 +60,56 @@ public class CalendarUtils {
         return days;
     }
 
-    private static LocalDate sundayForDate(LocalDate current)
+    public static ArrayList<ArrayList<LocalDate>> daysInMonthInYearArray(LocalDate selectedDate)
+    {
+        ArrayList<ArrayList<LocalDate>> months = new ArrayList<>();
+        LocalDate currentYearStart = yearStart(selectedDate);
+        LocalDate currentYearEnd = currentYearStart.plusYears(1);
+
+        while (currentYearStart.isBefore(currentYearEnd)) {
+            ArrayList<LocalDate> daysInMonth = new ArrayList<>();
+            LocalDate blankDays = mondayForDate(currentYearStart);
+            LocalDate endDate = currentYearStart.plusMonths(1);
+            while (blankDays.isBefore(currentYearStart)) {
+                daysInMonth.add(null);
+                blankDays = blankDays.plusDays(1);
+            }
+
+            while (currentYearStart.isBefore(endDate)) {
+                daysInMonth.add(currentYearStart);
+                currentYearStart = currentYearStart.plusDays(1);
+            }
+            months.add(daysInMonth);
+        }
+        return months;
+    }
+
+    private static LocalDate mondayForDate(LocalDate current)
     {
         LocalDate oneWeekAgo = current.minusWeeks(1);
 
         while (current.isAfter(oneWeekAgo))
         {
-            if(current.getDayOfWeek() == DayOfWeek.SUNDAY)
+            if(current.getDayOfWeek() == DayOfWeek.MONDAY)
                 return current;
 
             current = current.minusDays(1);
         }
 
+        return null;
+    }
+
+    private static LocalDate yearStart(LocalDate current)
+    {
+        LocalDate oneYearAgo = current.minusYears(1);
+
+        while (current.isAfter(oneYearAgo))
+        {
+            if(current.getDayOfYear() == 1)
+                return current;
+
+            current = current.minusDays(1);
+        }
         return null;
     }
 }
