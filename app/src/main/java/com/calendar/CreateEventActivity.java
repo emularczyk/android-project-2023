@@ -16,6 +16,12 @@ import android.widget.TimePicker;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.gms.ads.AdError;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.FullScreenContentCallback;
+import com.google.android.gms.ads.LoadAdError;
+import com.google.android.gms.ads.interstitial.InterstitialAd;
+import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -25,6 +31,7 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.Objects;
 import java.util.UUID;
 
 public class CreateEventActivity extends AppCompatActivity {
@@ -42,6 +49,8 @@ public class CreateEventActivity extends AppCompatActivity {
     private LocalDate selectedDate;
     private String eventId = UUID.randomUUID().toString();
     private Event oldEvent = null;
+    private InterstitialAd interstitialAd;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,6 +60,9 @@ public class CreateEventActivity extends AppCompatActivity {
         setupCalendar();
         setupTimer();
         updateExtras();
+        AdRequest adRequest = new AdRequest.Builder()
+                                           .build();
+        loadAdd(adRequest);
     }
 
     public void showAdvancedOptions(View view) {
@@ -95,15 +107,70 @@ public class CreateEventActivity extends AppCompatActivity {
         } catch (Exception e) {
             Log.i("Error", "Couldn't save event");
         }
+        if (interstitialAd != null) {
+            setAdAsFullContent();
+            interstitialAd.show(getParent());
+        } else {
+            Log.d("TAG", "The interstitial ad wasn't ready yet.");
+        }
         finish();
+    }
+
+    private void loadAdd(AdRequest adRequest) {
+        InterstitialAd.load(this,"ca-app-pub-3940256099942544/1033173712", adRequest,
+                new InterstitialAdLoadCallback() {
+                    @Override
+                    public void onAdLoaded(@NonNull InterstitialAd ad) {
+                        // The mInterstitialAd reference will be null until
+                        // an ad is loaded.
+                        interstitialAd = ad;
+                        Log.i(TAG, "onAdLoaded");
+                    }
+
+                    @Override
+                    public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
+                        Log.d(TAG, loadAdError.toString());
+                        interstitialAd = null;
+                    }
+                });
+    }
+
+    private void setAdAsFullContent() {
+        interstitialAd.setFullScreenContentCallback(new FullScreenContentCallback(){
+            @Override
+            public void onAdClicked() {
+                Log.d(TAG, "Ad was clicked.");
+            }
+
+            @Override
+            public void onAdDismissedFullScreenContent() {
+                Log.d(TAG, "Ad dismissed fullscreen content.");
+                interstitialAd = null;
+            }
+
+            @Override
+            public void onAdFailedToShowFullScreenContent(@NonNull AdError adError) {
+                Log.e(TAG, "Ad failed to show fullscreen content.");
+                interstitialAd = null;
+            }
+
+            @Override
+            public void onAdImpression() {
+                Log.d(TAG, "Ad recorded an impression.");
+            }
+
+            @Override
+            public void onAdShowedFullScreenContent() {
+                Log.d(TAG, "Ad showed fullscreen content.");
+            }
+        });
     }
 
     private boolean shouldDeleteOldEvent(Event oldEvent, Event newEvent) {
         if (oldEvent != null) {
-            if (oldEvent.isAnnual() != newEvent.isAnnual() ||
-                    oldEvent.getDate() != newEvent.getDate()) {
-                return true;
-            }
+            boolean areDatesNotEqual = !Objects.equals(oldEvent.getDate(), newEvent.getDate());
+            return oldEvent.isAnnual() != newEvent.isAnnual() ||
+                                          areDatesNotEqual;
         }
         return false;
     }
@@ -159,12 +226,8 @@ public class CreateEventActivity extends AppCompatActivity {
         datePicker.init(dateFromCalendar.getYear(),
                 dateFromCalendar.getMonth().getValue() - 1,
                 dateFromCalendar.getDayOfMonth(),
-                new DatePicker.OnDateChangedListener() {
-                    @Override
-                    public void onDateChanged(DatePicker datePicker, int year, int month, int dayOfMonth) {
-                        selectedDate = LocalDate.of(year, month + 1, dayOfMonth);
-                    }
-                });
+                (datePicker, year, month, dayOfMonth) ->
+                        selectedDate = LocalDate.of(year, month + 1, dayOfMonth));
         selectedDate = CalendarUtils.selectedDate;
         timePicker.setHour(LocalTime.now().getHour());
         timePicker.setHour(LocalTime.now().getMinute());
