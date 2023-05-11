@@ -45,6 +45,7 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:text="@string/edit"
+            android:textColor="?colorSecondary"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -56,6 +57,7 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:text="@string/delete"
+            android:textColor="?colorSecondary"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintVertical_bias="1.0" />
