@@ -30,6 +30,7 @@ import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.gms.ads.MobileAds;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -50,21 +51,26 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private RecyclerView recyclerView;
     private FragmentManager fragmentManager;
     private DrawerLayout drawer;
-    private NavigationView drawerNavigation;
     private int currentSelectedFragment = R.id.month_view;
     private ActionBarDrawerToggle drawerToggle;
+    private boolean adsNotInitialized = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        if (adsNotInitialized) {
+            MobileAds.initialize(getApplicationContext());
+            adsNotInitialized = false;
+        }
+
         ActionBar actionBar = getSupportActionBar();
         actionBar.setHomeAsUpIndicator(R.drawable.ic_menu);
         actionBar.setDisplayHomeAsUpEnabled(true);
 
         drawer = findViewById(R.id.drawer_layout);
-        drawerNavigation = findViewById(R.id.navigationView);
+        NavigationView drawerNavigation = findViewById(R.id.navigationView);
 
         drawerToggle = new ActionBarDrawerToggle(this, drawer,
                 R.string.drawer_open, R.string.drawer_close);
@@ -213,16 +219,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         return true;
     }
 
-    private void getEventsFromSnapshot(DataSnapshot dataSnapshot, String fromDate) {
-        for (DataSnapshot snapshot : dataSnapshot.child(fromDate).getChildren()) {
+    private void getEventsFromSnapshot(DataSnapshot dataSnapshot, String date) {
+        for (DataSnapshot snapshot : dataSnapshot.child(date).getChildren()) {
             String id = snapshot.getKey();
             String title = Objects.requireNonNull(snapshot.child("title").getValue()).toString();
-            String date = fromDate;
             String note = snapshot.child("note").exists() ? snapshot.child("note").getValue().toString() : "";
-            Boolean isSystemEvent = parseBoolean(Objects.requireNonNull(snapshot.child("isSystemEvent").getValue()).toString());
-            Boolean isAnnual = fromDate.contains("XXXX-");
-            Boolean isFree = parseBoolean(Objects.requireNonNull(snapshot.child("isSystemEvent").getValue()).toString());
-            Boolean isReminderOn = parseBoolean(Objects.requireNonNull(snapshot.child("isSystemEvent").getValue()).toString());
+            boolean isSystemEvent = parseBoolean(Objects.requireNonNull(snapshot.child("isSystemEvent").getValue()).toString());
+            boolean isAnnual = date.contains("XXXX-");
+            boolean isFree = parseBoolean(Objects.requireNonNull(snapshot.child("isSystemEvent").getValue()).toString());
+            boolean isReminderOn = parseBoolean(Objects.requireNonNull(snapshot.child("isSystemEvent").getValue()).toString());
             LocalTime reminderTimer = snapshot.child("reminderTime").exists() ?getReminderTime(snapshot): null;
 
             Event event = new Event(
