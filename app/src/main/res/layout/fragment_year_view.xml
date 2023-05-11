@@ -23,7 +23,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:src="@drawable/baseline_keyboard_arrow_left_24"
-                android:background="@color/design_default_color_secondary"/>
+                android:background="?colorPrimary"/>
 
             <TextView
                 android:id="@+id/yearTextView"
@@ -32,7 +32,7 @@
                 android:layout_weight="2"
                 android:text=""
                 android:textAlignment="center"
-                android:textColor="@color/black"
+                android:textColor="?colorOnSecondary"
                 android:textSize="24sp" />
 
             <ImageButton
@@ -41,7 +41,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:src="@drawable/baseline_keyboard_arrow_right_24"
-                android:background="@color/design_default_color_secondary"/>
+                android:background="?colorPrimary"/>
 
         </LinearLayout>
 
