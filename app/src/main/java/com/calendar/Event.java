@@ -1,5 +1,7 @@
 package com.calendar;
 
+import androidx.annotation.NonNull;
+
 import java.io.Serializable;
 import java.time.LocalTime;
 import java.util.UUID;
@@ -16,10 +18,6 @@ public class Event implements Serializable {
     private boolean isReminderOn = false;
     private LocalTime reminderTime = null;
 
-    public Event(String id,String title, String date) {
-        this(id,title, date, "");
-    }
-
     public Event(String id,String title, String date, String note) {
         this.id = id;
         this.title = title == null ? "Wydarzenie" : title.length() == 0 ? "wydarzenie" : title;
@@ -33,14 +31,6 @@ public class Event implements Serializable {
         this.date = date;
         this.isSystemEvent = isSystemEvent;
         this.isFreeFromWork = true;
-    }
-
-    public Event(String id, String title, String date, String note, boolean isAnnual,
-                 boolean isFreeFromWork, boolean isReminderOn) {
-        this(id,title, date, note);
-        this.isAnnual = isAnnual;
-        this.isFreeFromWork = isFreeFromWork;
-        this.isReminderOn = isReminderOn;
     }
 
     public Event(String id, String title, String date, String note,
@@ -128,6 +118,7 @@ public class Event implements Serializable {
         this.id = id;
     }
 
+    @NonNull
     @Override
     public String toString() {
         return "Event{" +
