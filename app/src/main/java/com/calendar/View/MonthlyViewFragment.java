@@ -1,4 +1,4 @@
-package com.calendar;
+package com.calendar.View;
 
 import static com.calendar.CalendarUtils.getMilliseconds;
 import static com.calendar.CalendarUtils.selectedDate;
@@ -11,6 +11,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CalendarView;
+
+import com.calendar.CalendarUtils;
+import com.calendar.MainActivity;
+import com.calendar.R;
 
 import java.time.LocalDate;
 

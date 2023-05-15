@@ -51,7 +51,7 @@
             android:layout_marginTop="37dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            android:name="com.calendar.MonthlyViewFragment"
+            android:name="com.calendar.View.MonthlyViewFragment"
             tools:layout="@layout/fragment_monthly_view" />
 
         <Button

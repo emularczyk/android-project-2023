@@ -25,4 +25,10 @@
     <string name="event_note">Note</string>
     <string name="drawer_open">open</string>
     <string name="drawer_close">close</string>
+    <string name="zero_value">0</string>
+    <string name="select_range">Select Range</string>
+    <string name="working_days">Working days</string>
+    <string name="free_days">Free days</string>
+    <string name="none_value">none</string>
+    <string name="selected_date_range">Selected date range:</string>
 </resources>

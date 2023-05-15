@@ -13,8 +13,6 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Switch;
@@ -33,9 +31,13 @@ import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.calendar.Activity.CountDays;
+import com.calendar.Activity.CreateEventActivity;
+import com.calendar.View.MonthlyViewFragment;
+import com.calendar.View.WeekViewFragment;
+import com.calendar.View.YearViewFragment;
 import com.google.android.gms.ads.MobileAds;
 import com.google.android.material.navigation.NavigationView;
-import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -164,42 +166,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.options_menu, menu);
-        return super.onCreateOptionsMenu(menu);
-    }
-
-    @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
                 return isDrawerNotNullAndItemSelectedOrSuperItemSelected(item);
-            case R.id.jumpToDate:
-                DatePickerDialog datePicker = new DatePickerDialog(
-                        this,
-                        android.R.style.Theme_Light_Panel,
-                        (datePicker1, year, month, day) -> {
-                            CalendarUtils.selectedDate = LocalDate.of(year, month + 1, day);
-                            onResume();
-                            Fragment calendarFragment = fragmentManager.findFragmentByTag("calendarFragment");
-                            if(isAddedToItsActivity(calendarFragment)) {
-                                calendarFragment.onResume();
-                            }
-                        },
-                        selectedDate.getYear(),
-                        selectedDate.getMonth().getValue() - 1,
-                        selectedDate.getDayOfMonth());
-                datePicker.getWindow()
-                          .setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-                datePicker.show();
-                return true;
-            case R.id.countFreeDays:
-                Toast.makeText(this, "Count free days is not implemented yet", Toast.LENGTH_SHORT).show();
-                return true;
-            case R.id.filerEvents:
-                Toast.makeText(this, "Filtering events is not implemented yet", Toast.LENGTH_SHORT).show();
-                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -211,7 +181,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private boolean isDrawerNotNullAndItemSelectedOrSuperItemSelected(@NonNull MenuItem item) {
         return drawerToggle != null && drawerToggle.onOptionsItemSelected(item)
-                                    || super.onOptionsItemSelected(item);
+                || super.onOptionsItemSelected(item);
     }
 
     @Override
@@ -229,10 +199,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             case R.id.month_view:
                 currentSelectedFragment = R.id.month_view;
                 fragmentManager.beginTransaction()
-                    .replace(R.id.calendarFragmentContainer, MonthlyViewFragment.class, null, "calendarFragment")
-                    .setReorderingAllowed(true)
-                    .addToBackStack("monthView")
-                    .commit();
+                        .replace(R.id.calendarFragmentContainer, MonthlyViewFragment.class, null, "calendarFragment")
+                        .setReorderingAllowed(true)
+                        .addToBackStack("monthView")
+                        .commit();
                 break;
             case R.id.year_view:
                 currentSelectedFragment = R.id.year_view;
@@ -241,6 +211,31 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         .setReorderingAllowed(true)
                         .addToBackStack("yearView")
                         .commit();
+                break;
+            case R.id.jump_to_date:
+                DatePickerDialog datePicker = new DatePickerDialog(
+                        this,
+                        android.R.style.Theme_Light_Panel,
+                        (datePicker1, year, month, day) -> {
+                            CalendarUtils.selectedDate = LocalDate.of(year, month + 1, day);
+                            onResume();
+                            Fragment calendarFragment = fragmentManager.findFragmentByTag("calendarFragment");
+                            if (isAddedToItsActivity(calendarFragment)) {
+                                calendarFragment.onResume();
+                            }
+                        },
+                        selectedDate.getYear(),
+                        selectedDate.getMonth().getValue() - 1,
+                        selectedDate.getDayOfMonth());
+                datePicker.getWindow()
+                        .setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+                datePicker.show();
+                break;
+            case R.id.count_free_days:
+                startActivity(new Intent(this, CountDays.class));
+                break;
+            case R.id.filetr_events:
+                Toast.makeText(this, "Filtering events is not implemented yet", Toast.LENGTH_SHORT).show();
                 break;
         }
         drawer.closeDrawer(GravityCompat.START);
@@ -257,7 +252,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             boolean isAnnual = date.contains("XXXX-");
             boolean isFree = parseBoolean(Objects.requireNonNull(snapshot.child("isSystemEvent").getValue()).toString());
             boolean isReminderOn = parseBoolean(Objects.requireNonNull(snapshot.child("isSystemEvent").getValue()).toString());
-            LocalTime reminderTimer = snapshot.child("reminderTime").exists() ?getReminderTime(snapshot): null;
+            LocalTime reminderTimer = snapshot.child("reminderTime").exists() ? getReminderTime(snapshot) : null;
 
             Event event = new Event(
                     id,
@@ -273,10 +268,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
-    private LocalTime getReminderTime(DataSnapshot snapshot){
-        return  LocalTime.of(Integer.parseInt(snapshot.child("reminderTime").child("hour").getValue().toString()),
+    private LocalTime getReminderTime(DataSnapshot snapshot) {
+        return LocalTime.of(Integer.parseInt(snapshot.child("reminderTime").child("hour").getValue().toString()),
                 Integer.parseInt(snapshot.child("reminderTime").child("minute").getValue().toString()));
     }
+
     public static ArrayList<Event> getEventList() {
         return eventList;
     }

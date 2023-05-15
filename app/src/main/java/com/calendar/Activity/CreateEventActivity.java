@@ -1,4 +1,4 @@
-package com.calendar;
+package com.calendar.Activity;
 
 import static android.content.ContentValues.TAG;
 import static com.calendar.EventRepository.saveEvent;
@@ -16,6 +16,9 @@ import android.widget.TimePicker;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.calendar.CalendarUtils;
+import com.calendar.Event;
+import com.calendar.R;
 import com.google.android.gms.ads.AdError;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.FullScreenContentCallback;
@@ -56,6 +59,7 @@ public class CreateEventActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_event);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         initWidgets();
         setupCalendar();
         setupTimer();

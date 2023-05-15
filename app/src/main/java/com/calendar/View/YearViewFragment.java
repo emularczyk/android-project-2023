@@ -1,8 +1,6 @@
-package com.calendar;
+package com.calendar.View;
 
 import static com.calendar.CalendarUtils.daysInMonthInYearArray;
-import static com.calendar.CalendarUtils.getMilliseconds;
-import static com.calendar.CalendarUtils.selectedDate;
 import static com.calendar.CalendarUtils.yearFromDate;
 
 import android.os.Bundle;
@@ -18,6 +16,11 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.calendar.CalendarAdapter;
+import com.calendar.CalendarUtils;
+import com.calendar.MainActivity;
+import com.calendar.R;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -59,7 +62,7 @@ public class YearViewFragment extends Fragment implements CalendarAdapter.OnItem
     @Override
     public void onItemClick(int position, LocalDate date) {
         CalendarUtils.selectedDate = date;
-        Log.d("CurrentDate", CalendarUtils.formattedDate(CalendarUtils.selectedDate));
+        Log.d("CurrentDate", CalendarUtils.dateToString(CalendarUtils.selectedDate));
         setYearView();
         ((MainActivity) getActivity()).notifyChange();
     }

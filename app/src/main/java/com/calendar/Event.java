@@ -32,6 +32,7 @@ public class Event implements Serializable {
         this.title = title == null ? "Wydarzenie" : title.length() == 0 ? "wydarzenie" : title;
         this.date = date;
         this.isSystemEvent = isSystemEvent;
+        this.isFreeFromWork = true;
     }
 
     public Event(String id, String title, String date, String note, boolean isAnnual,
