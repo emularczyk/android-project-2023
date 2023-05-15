@@ -3,8 +3,6 @@ package com.calendar.activity;
 import static android.content.ContentValues.TAG;
 import static com.calendar.EventRepository.saveEvent;
 
-import android.app.Notification;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -40,7 +38,8 @@ import java.util.UUID;
 
 public class CreateEventActivity extends AppCompatActivity {
 
-    public static final String PACKAGE_NAME = "com.calendar";
+    private AdController adController;
+    private EventController eventController;
     private EditText titleText;
     private DatePicker datePicker;
     private EditText noteText;
@@ -53,7 +52,6 @@ public class CreateEventActivity extends AppCompatActivity {
     private LocalDate selectedDate;
     private String eventId = UUID.randomUUID().toString();
     private Event oldEvent = null;
-    private InterstitialAd interstitialAd;
 
 
     @Override
@@ -65,9 +63,8 @@ public class CreateEventActivity extends AppCompatActivity {
         setupCalendar();
         setupTimer();
         updateExtras();
-        AdRequest adRequest = new AdRequest.Builder()
-                                           .build();
-        loadAdd(adRequest);
+        adController = new AdController(this);
+        eventController = new EventController(this);
     }
 
     public void showAdvancedOptions(View view) {
@@ -111,96 +108,13 @@ public class CreateEventActivity extends AppCompatActivity {
         try {
             saveEvent(eventToSave);
             NotificationPublisher.scheduleNotification(eventToSave, this,
-                                                        getNotification(eventToSave, this));
+                    eventController.prepareEventNotification(eventToSave));
         } catch (Exception e) {
             Log.i("Error", "Couldn't save event");
         }
 
-        if (interstitialAd != null) {
-            setAdAsFullContent();
-            interstitialAd.show(getParent());
-        } else {
-            Log.d("TAG", "The interstitial ad wasn't ready yet.");
-        }
+        adController.showFullContentAd(getParent());
         finish();
-    }
-
-    private Notification getNotification(final Event event, Context context) {
-        Notification.Builder builder
-                = new Notification.Builder(context, PACKAGE_NAME);
-        builder.setContentTitle(event.getTitle());
-        builder.setContentText(event.getNote());
-        builder.setSubText(getNotificationDateTime(event));
-        builder.setSmallIcon(R.drawable.ic_launcher_foreground);
-        return builder.build();
-    }
-
-    private String getNotificationDateTime(final Event event) {
-        String notificationDateTime;
-        if (event.isAnnual()) {
-            String eventDateWithoutYear = event.getDate()
-                    .substring(event.getDate()
-                            .indexOf("-") + 1);
-            notificationDateTime = "Each year " + eventDateWithoutYear;
-        } else {
-            return event.getDate();
-        }
-
-        if (event.getReminderTime() != null) {
-            notificationDateTime += " " + event.getReminderTime();
-        }
-
-        return notificationDateTime;
-    }
-
-    private void loadAdd(AdRequest adRequest) {
-        InterstitialAd.load(this,"ca-app-pub-3940256099942544/1033173712", adRequest,
-                new InterstitialAdLoadCallback() {
-                    @Override
-                    public void onAdLoaded(@NonNull InterstitialAd ad) {
-                        // The mInterstitialAd reference will be null until
-                        // an ad is loaded.
-                        interstitialAd = ad;
-                        Log.i(TAG, "onAdLoaded");
-                    }
-
-                    @Override
-                    public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
-                        Log.d(TAG, loadAdError.toString());
-                        interstitialAd = null;
-                    }
-                });
-    }
-
-    private void setAdAsFullContent() {
-        interstitialAd.setFullScreenContentCallback(new FullScreenContentCallback(){
-            @Override
-            public void onAdClicked() {
-                Log.d(TAG, "Ad was clicked.");
-            }
-
-            @Override
-            public void onAdDismissedFullScreenContent() {
-                Log.d(TAG, "Ad dismissed fullscreen content.");
-                interstitialAd = null;
-            }
-
-            @Override
-            public void onAdFailedToShowFullScreenContent(@NonNull AdError adError) {
-                Log.e(TAG, "Ad failed to show fullscreen content.");
-                interstitialAd = null;
-            }
-
-            @Override
-            public void onAdImpression() {
-                Log.d(TAG, "Ad recorded an impression.");
-            }
-
-            @Override
-            public void onAdShowedFullScreenContent() {
-                Log.d(TAG, "Ad showed fullscreen content.");
-            }
-        });
     }
 
     boolean shouldDeleteOldEvent(Event oldEvent, Event newEvent) {

@@ -2,7 +2,6 @@ package com.calendar;
 
 import static android.content.Context.ALARM_SERVICE;
 
-import android.annotation.SuppressLint;
 import android.app.AlarmManager;
 import android.app.Notification;
 import android.app.NotificationChannel;
@@ -49,15 +48,6 @@ public class NotificationPublisher extends BroadcastReceiver {
                                      final Notification notification) {
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(ALARM_SERVICE);
 
-        LocalTime reminderTime = eventToNotify.getReminderTime();
-
-        if(reminderTime == null) {
-            reminderTime = DEFAULT_REMINDER_TIME;
-        }
-
-        LocalDateTime reminderDateTime = LocalDateTime.of(LocalDate.parse(eventToNotify.getDate()),
-                reminderTime);
-
         Intent notificationPublisherIntent = new Intent(context, NotificationPublisher.class);
         int newNotificationId = eventToNotify.getId()
                                            .hashCode();
@@ -69,7 +59,7 @@ public class NotificationPublisher extends BroadcastReceiver {
                 notificationPublisherIntent,
                 0);
 
-        ZonedDateTime zonedNotificationDateTime = reminderDateTime.atZone(ZoneId.systemDefault());
+        ZonedDateTime zonedNotificationDateTime = getZonedReminderDateTime(eventToNotify);
         if(eventToNotify.isAnnual()) {
             alarmManager.setRepeating(AlarmManager.RTC,
                                         zonedNotificationDateTime.toInstant()
@@ -99,6 +89,17 @@ public class NotificationPublisher extends BroadcastReceiver {
                 0);
 
         alarmManager.cancel(notificationPendingIntent);
-        Log.d("Alarm", "Alarm at" + oldEvent.getDate() + oldEvent.getReminderTime() + " cancelled");
+        Log.d("Alarm", "Alarm at " + oldEvent.getDate() + oldEvent.getReminderTime() + " cancelled");
+    }
+
+    private static ZonedDateTime getZonedReminderDateTime(Event eventToNotify) {
+        LocalTime reminderTime = eventToNotify.getReminderTime();
+
+        if(reminderTime == null) {
+            reminderTime = DEFAULT_REMINDER_TIME;
+        }
+
+        return LocalDateTime.of(LocalDate.parse(eventToNotify.getDate()), reminderTime)
+                            .atZone(ZoneId.systemDefault());
     }
 }
