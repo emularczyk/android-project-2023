@@ -7,6 +7,8 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 
 public class CalendarUtils {
 
@@ -19,7 +21,16 @@ public class CalendarUtils {
     }
 
     public static String getCurrentDateString() {
-        return CalendarUtils.formattedDate(CalendarUtils.selectedDate);
+        return CalendarUtils.dateToString(CalendarUtils.selectedDate);
+    }
+
+    public static LocalDate dateToLocalDate(Date date) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        int year = calendar.get(Calendar.YEAR);
+        int month = calendar.get(Calendar.MONTH) + 1;
+        int day = calendar.get(Calendar.DAY_OF_MONTH);
+        return LocalDate.of(year, month, day);
     }
 
     public static Long getMilliseconds(LocalDate localDate) {
@@ -28,7 +39,7 @@ public class CalendarUtils {
         return zoneDataTime.toInstant().toEpochMilli();
     }
 
-    public static String formattedDate(LocalDate date)
+    public static String dateToString(LocalDate date)
     {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         return date.format(formatter);

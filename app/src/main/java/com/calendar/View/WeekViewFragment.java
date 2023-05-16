@@ -1,4 +1,4 @@
-package com.calendar;
+package com.calendar.View;
 
 import static com.calendar.CalendarUtils.daysInWeekArray;
 import static com.calendar.CalendarUtils.monthYearFromDate;
@@ -13,6 +13,11 @@ import android.widget.TextView;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.calendar.CalendarAdapter;
+import com.calendar.CalendarUtils;
+import com.calendar.MainActivity;
+import com.calendar.R;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -49,7 +54,7 @@ public class WeekViewFragment extends Fragment implements CalendarAdapter.OnItem
     public void onItemClick(int position, LocalDate date)
     {
         CalendarUtils.selectedDate = date;
-        Log.d("CurrentDate", CalendarUtils.formattedDate(CalendarUtils.selectedDate));
+        Log.d("CurrentDate", CalendarUtils.dateToString(CalendarUtils.selectedDate));
         setWeekView();
         ((MainActivity) getActivity()).notifyChange();
     }

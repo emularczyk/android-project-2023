@@ -18,6 +18,20 @@
             android:title="Year"
             android:icon="@drawable/baseline_calendar_view_year_24">
         </item>
-
+        <item
+            android:id="@+id/jump_to_date"
+            android:title="Jump"
+            android:icon="@drawable/arrow_drop_down">
+        </item>
+        <item
+            android:id="@+id/count_free_days"
+            android:title="Count"
+            android:icon="@drawable/free_day">
+        </item>
+        <item
+            android:id="@+id/filetr_events"
+            android:title="Filter"
+            android:icon="@drawable/filter">
+        </item>
     </group>
 </menu>
