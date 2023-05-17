@@ -27,12 +27,10 @@ public class Adapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     public ArrayList<Event> eventList;
     private final DatabaseReference databaseReference;
-    private final String date;
     private final Context context;
 
-    Adapter(ArrayList<Event> eventList, String date, Context context) {
+    public Adapter(ArrayList<Event> eventList, Context context) {
         this.eventList = eventList;
-        this.date = date;
         this.context = context;
         this.databaseReference = FirebaseDatabase.
                 getInstance().
@@ -59,6 +57,7 @@ public class Adapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         EventItemViewHolder eventItemVH = (EventItemViewHolder) holder;
         eventItemVH.getTitleTextView().setText(eventList.get(position).getTitle());
+        eventItemVH.getDateTextView().setText(eventList.get(position).getDate().substring(5));
         eventItemVH.getNoteTextView().setText(eventList.get(position).getNote());
         eventItemVH.getEditButton().setText(R.string.edit);
         eventItemVH.getEditButton().setOnClickListener(v -> editEvent(holder));

@@ -1,10 +1,9 @@
-package com.calendar;
+package com.calendar.Activity;
 
 import static android.content.ContentValues.TAG;
 import static com.calendar.CalendarUtils.convertDateStringToRegardlessOfTheYear;
 import static com.calendar.CalendarUtils.getCurrentDateString;
 import static com.calendar.CalendarUtils.selectedDate;
-import static java.lang.Boolean.parseBoolean;
 
 import android.app.DatePickerDialog;
 import android.content.Intent;
@@ -16,7 +15,6 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Switch;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
@@ -31,8 +29,10 @@ import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.calendar.Activity.CountDays;
-import com.calendar.Activity.CreateEventActivity;
+import com.calendar.Adapter;
+import com.calendar.CalendarUtils;
+import com.calendar.Event;
+import com.calendar.R;
 import com.calendar.View.MonthlyViewFragment;
 import com.calendar.View.WeekViewFragment;
 import com.calendar.View.YearViewFragment;
@@ -45,9 +45,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.ArrayList;
-import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
@@ -130,7 +128,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     public void setEventRecyclerView() {
-        adapter = new Adapter(eventList, getCurrentDateString(), MainActivity.this);
+        adapter = new Adapter(eventList, MainActivity.this);
         recyclerView = findViewById(R.id.recyclerView);
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(MainActivity.this);
         recyclerView.setLayoutManager(layoutManager);
@@ -143,9 +141,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 eventList.clear();
-                getEventsFromSnapshot(dataSnapshot, getCurrentDateString());
-                getEventsFromSnapshot(dataSnapshot, convertDateStringToRegardlessOfTheYear(getCurrentDateString()));
-                adapter = new Adapter(eventList, getCurrentDateString(), MainActivity.this);
+                CalendarUtils.getEventsFromSnapshot(dataSnapshot, getCurrentDateString(), eventList);
+                CalendarUtils.getEventsFromSnapshot(dataSnapshot, convertDateStringToRegardlessOfTheYear(getCurrentDateString()), eventList);
+                adapter = new Adapter(eventList, MainActivity.this);
                 recyclerView.setAdapter(adapter);
             }
 
@@ -235,42 +233,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 startActivity(new Intent(this, CountDays.class));
                 break;
             case R.id.filetr_events:
-                Toast.makeText(this, "Filtering events is not implemented yet", Toast.LENGTH_SHORT).show();
+                startActivity(new Intent(this, FilterEvents.class));
                 break;
         }
         drawer.closeDrawer(GravityCompat.START);
 
         return true;
-    }
-
-    private void getEventsFromSnapshot(DataSnapshot dataSnapshot, String date) {
-        for (DataSnapshot snapshot : dataSnapshot.child(date).getChildren()) {
-            String id = snapshot.getKey();
-            String title = Objects.requireNonNull(snapshot.child("title").getValue()).toString();
-            String note = snapshot.child("note").exists() ? snapshot.child("note").getValue().toString() : "";
-            boolean isSystemEvent = parseBoolean(Objects.requireNonNull(snapshot.child("isSystemEvent").getValue()).toString());
-            boolean isAnnual = date.contains("XXXX-");
-            boolean isFree = parseBoolean(Objects.requireNonNull(snapshot.child("isSystemEvent").getValue()).toString());
-            boolean isReminderOn = parseBoolean(Objects.requireNonNull(snapshot.child("isSystemEvent").getValue()).toString());
-            LocalTime reminderTimer = snapshot.child("reminderTime").exists() ? getReminderTime(snapshot) : null;
-
-            Event event = new Event(
-                    id,
-                    title,
-                    date,
-                    note,
-                    isSystemEvent,
-                    isAnnual,
-                    isFree,
-                    isReminderOn,
-                    reminderTimer);
-            eventList.add(event);
-        }
-    }
-
-    private LocalTime getReminderTime(DataSnapshot snapshot) {
-        return LocalTime.of(Integer.parseInt(snapshot.child("reminderTime").child("hour").getValue().toString()),
-                Integer.parseInt(snapshot.child("reminderTime").child("minute").getValue().toString()));
     }
 
     public static ArrayList<Event> getEventList() {
