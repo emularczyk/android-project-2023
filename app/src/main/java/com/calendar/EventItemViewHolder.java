@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 public class EventItemViewHolder extends RecyclerView.ViewHolder {
     private TextView titleTextView;
+    private TextView dateTextView;
     private TextView noteTextView;
     private ConstraintLayout itemLayout;
     private ConstraintLayout constraintLayout;
@@ -19,6 +20,7 @@ public class EventItemViewHolder extends RecyclerView.ViewHolder {
     public EventItemViewHolder(View itemView) {
         super(itemView);
         titleTextView = itemView.findViewById(R.id.titleTextView);
+        dateTextView = itemView.findViewById(R.id.dateTextView);
         noteTextView = itemView.findViewById(R.id.noteTextView);
         editButton = itemView.findViewById(R.id.editButton);
         deleteButton = itemView.findViewById(R.id.deleteButton);
@@ -33,6 +35,14 @@ public class EventItemViewHolder extends RecyclerView.ViewHolder {
 
     public void setTitleTextView(TextView titleTextView) {
         this.titleTextView = titleTextView;
+    }
+
+    public TextView getDateTextView() {
+        return dateTextView;
+    }
+
+    public void setDateTextView(TextView dateTextView) {
+        this.dateTextView = dateTextView;
     }
 
     public Button getDeleteButton() {

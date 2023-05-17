@@ -1,14 +1,20 @@
 package com.calendar;
 
+import static java.lang.Boolean.parseBoolean;
+
+import com.google.firebase.database.DataSnapshot;
+
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Objects;
 
 public class CalendarUtils {
 
@@ -123,4 +129,35 @@ public class CalendarUtils {
         }
         return null;
     }
+
+    public static void getEventsFromSnapshot(DataSnapshot dataSnapshot, String dateString, ArrayList<Event> eventList) {
+        for (DataSnapshot snapshot : dataSnapshot.child(dateString).getChildren()) {
+            String id = snapshot.getKey();
+            String title = Objects.requireNonNull(snapshot.child("title").getValue()).toString();
+            String note = snapshot.child("note").exists() ? snapshot.child("note").getValue().toString() : "";
+            boolean isSystemEvent = parseBoolean(Objects.requireNonNull(snapshot.child("isSystemEvent").getValue()).toString());
+            boolean isAnnual = dateString.contains("XXXX-");
+            boolean isFree = parseBoolean(Objects.requireNonNull(snapshot.child("isSystemEvent").getValue()).toString());
+            boolean isReminderOn = parseBoolean(Objects.requireNonNull(snapshot.child("isSystemEvent").getValue()).toString());
+            LocalTime reminderTimer = snapshot.child("reminderTime").exists() ? getReminderTime(snapshot) : null;
+
+            Event event = new Event(
+                    id,
+                    title,
+                    dateString,
+                    note,
+                    isSystemEvent,
+                    isAnnual,
+                    isFree,
+                    isReminderOn,
+                    reminderTimer);
+            eventList.add(event);
+        }
+    }
+
+    private static LocalTime getReminderTime(DataSnapshot snapshot) {
+        return LocalTime.of(Integer.parseInt(snapshot.child("reminderTime").child("hour").getValue().toString()),
+                Integer.parseInt(snapshot.child("reminderTime").child("minute").getValue().toString()));
+    }
+
 }

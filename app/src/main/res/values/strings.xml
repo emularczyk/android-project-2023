@@ -31,4 +31,6 @@
     <string name="free_days">Free days</string>
     <string name="none_value">none</string>
     <string name="selected_date_range">Selected date range:</string>
+    <string name="date">Date</string>
+    <string name="title">Title</string>
 </resources>

@@ -60,16 +60,16 @@
 
     <TextView
         android:id="@+id/numberOfFreeDays"
-        android:layout_width="13dp"
-        android:layout_height="45dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_marginTop="44dp"
         android:gravity="center"
         android:text="@string/zero_value"
         android:textAlignment="center"
         android:textSize="30sp"
-        app:layout_constraintEnd_toEndOf="@+id/workingDayText"
-        app:layout_constraintHorizontal_bias="0.35"
+        app:layout_constraintEnd_toEndOf="@+id/numberOfWorkingDays"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintHorizontal_bias="0.4"
         app:layout_constraintTop_toBottomOf="@+id/freeDayText" />
 
     <TextView

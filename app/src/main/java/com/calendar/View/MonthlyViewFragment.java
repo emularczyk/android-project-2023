@@ -13,7 +13,7 @@ import android.view.ViewGroup;
 import android.widget.CalendarView;
 
 import com.calendar.CalendarUtils;
-import com.calendar.MainActivity;
+import com.calendar.Activity.MainActivity;
 import com.calendar.R;
 
 import java.time.LocalDate;
