@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:id="@+id/drawer_layout"
-    tools:context=".Activity.MainActivity"
+    tools:context=".activity.MainActivity"
     android:fitsSystemWindows="true"
     tools:openDrawer="start">
 
@@ -51,7 +51,7 @@
             android:layout_marginTop="37dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            android:name="com.calendar.View.MonthlyViewFragment"
+            android:name="com.calendar.view.MonthlyViewFragment"
             tools:layout="@layout/fragment_monthly_view" />
 
         <Button

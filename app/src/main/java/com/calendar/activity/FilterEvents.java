@@ -1,4 +1,4 @@
-package com.calendar.Activity;
+package com.calendar.activity;
 
 import static android.content.ContentValues.TAG;
 import static com.calendar.CalendarUtils.convertDateStringToRegardlessOfTheYear;
@@ -109,8 +109,8 @@ public class FilterEvents extends AppCompatActivity {
             dateRangeText.setText(materialDatePicker.getHeaderText());
             Date startDate = new Date(selection.first);
             Date endDate = new Date(selection.second);
-            startLocalDate = dateToLocalDate(startDate);
-            endLocalDate = dateToLocalDate(endDate);
+            startLocalDate = CalendarUtils.dateToLocalDate(startDate);
+            endLocalDate = CalendarUtils.dateToLocalDate(endDate);
             setEventListView();
         });
     }
@@ -124,15 +124,6 @@ public class FilterEvents extends AppCompatActivity {
 
     public void selectDateRange(View view) {
         materialDatePicker.show(getSupportFragmentManager(), "tag_picker");
-    }
-
-    private LocalDate dateToLocalDate(Date date) {
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(date);
-        int year = calendar.get(Calendar.YEAR);
-        int month = calendar.get(Calendar.MONTH) + 1;
-        int day = calendar.get(Calendar.DAY_OF_MONTH);
-        return LocalDate.of(year, month, day);
     }
 
 }

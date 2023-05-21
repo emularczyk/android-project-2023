@@ -1,4 +1,4 @@
-package com.calendar.Activity;
+package com.calendar.activity;
 
 import static android.content.ContentValues.TAG;
 import static com.calendar.EventRepository.saveEvent;
@@ -170,7 +170,7 @@ public class CreateEventActivity extends AppCompatActivity {
         });
     }
 
-    private boolean shouldDeleteOldEvent(Event oldEvent, Event newEvent) {
+    boolean shouldDeleteOldEvent(Event oldEvent, Event newEvent) {
         if (oldEvent != null) {
             boolean areDatesNotEqual = !Objects.equals(oldEvent.getDate(), newEvent.getDate());
             return oldEvent.isAnnual() != newEvent.isAnnual() ||

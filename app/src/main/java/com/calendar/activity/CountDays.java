@@ -1,4 +1,4 @@
-package com.calendar.Activity;
+package com.calendar.activity;
 
 import static android.content.ContentValues.TAG;
 import static com.calendar.CalendarUtils.convertDateStringToRegardlessOfTheYear;
@@ -127,7 +127,7 @@ public class CountDays extends AppCompatActivity {
                 checkAllEventsInFolder(dataSnapshot, convertDateStringToRegardlessOfTheYear(date));
     }
 
-    private boolean checkAllEventsInFolder(DataSnapshot dataSnapshot, String date) {
+    boolean checkAllEventsInFolder(DataSnapshot dataSnapshot, String date) {
         for (DataSnapshot snapshot : dataSnapshot.child(date).getChildren()) {
             if (parseBoolean(Objects.requireNonNull(snapshot.child("isFree").getValue()).toString())) {
                 return true;

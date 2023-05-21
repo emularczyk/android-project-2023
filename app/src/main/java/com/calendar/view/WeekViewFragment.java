@@ -1,4 +1,4 @@
-package com.calendar.View;
+package com.calendar.view;
 
 import static com.calendar.CalendarUtils.daysInWeekArray;
 import static com.calendar.CalendarUtils.monthYearFromDate;
@@ -16,7 +16,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.calendar.CalendarAdapter;
 import com.calendar.CalendarUtils;
-import com.calendar.Activity.MainActivity;
+import com.calendar.activity.MainActivity;
 import com.calendar.R;
 
 import java.time.LocalDate;
