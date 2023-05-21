@@ -1,4 +1,4 @@
-package com.calendar.Activity;
+package com.calendar.activity;
 
 import static android.content.ContentValues.TAG;
 import static com.calendar.CalendarUtils.convertDateStringToRegardlessOfTheYear;
@@ -33,9 +33,9 @@ import com.calendar.Adapter;
 import com.calendar.CalendarUtils;
 import com.calendar.Event;
 import com.calendar.R;
-import com.calendar.View.MonthlyViewFragment;
-import com.calendar.View.WeekViewFragment;
-import com.calendar.View.YearViewFragment;
+import com.calendar.view.MonthlyViewFragment;
+import com.calendar.view.WeekViewFragment;
+import com.calendar.view.YearViewFragment;
 import com.google.android.gms.ads.MobileAds;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.database.DataSnapshot;

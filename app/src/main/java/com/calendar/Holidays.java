@@ -77,7 +77,7 @@ public class Holidays {
         saveEventList(fluidHolidays);
     }
 
-    private static LocalDate calculateEasterSunday(int year) {
+    static LocalDate calculateEasterSunday(int year) {
         int d = calculateD(year);
         int e = calculateE(year, d);
         int q = calculateQ(d, e);
