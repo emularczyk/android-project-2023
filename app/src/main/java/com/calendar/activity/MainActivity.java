@@ -30,6 +30,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.calendar.Adapter;
+import com.calendar.EventNotificationSchedulerBroadcastReceiver;
 import com.calendar.CalendarUtils;
 import com.calendar.Event;
 import com.calendar.R;
@@ -49,8 +50,9 @@ import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
-    private DatabaseReference databaseReference;
+    public static final String BROADCAST = "calendar.android.action.APP_OPENED";
     private static final ArrayList<Event> eventList = new ArrayList<>();
+    private DatabaseReference databaseReference;
     private Adapter adapter;
     private RecyclerView recyclerView;
     private FragmentManager fragmentManager;
@@ -63,6 +65,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        Intent intent = new Intent(BROADCAST);
+        intent.setClass(this, EventNotificationSchedulerBroadcastReceiver.class);
+        sendBroadcast(intent);
 
         if (adsNotInitialized) {
             MobileAds.initialize(getApplicationContext());
@@ -141,8 +147,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 eventList.clear();
-                CalendarUtils.getEventsFromSnapshot(dataSnapshot, getCurrentDateString(), eventList);
-                CalendarUtils.getEventsFromSnapshot(dataSnapshot, convertDateStringToRegardlessOfTheYear(getCurrentDateString()), eventList);
+                CalendarUtils.getCurrentEventsFromSnapshot(dataSnapshot, getCurrentDateString(), eventList);
+                CalendarUtils.getCurrentEventsFromSnapshot(dataSnapshot, convertDateStringToRegardlessOfTheYear(getCurrentDateString()), eventList);
                 adapter = new Adapter(eventList, MainActivity.this);
                 recyclerView.setAdapter(adapter);
             }

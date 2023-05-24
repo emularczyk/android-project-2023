@@ -15,15 +15,13 @@ import android.widget.TimePicker;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.calendar.AdController;
 import com.calendar.CalendarUtils;
 import com.calendar.Event;
+import com.calendar.EventController;
+import com.calendar.NotificationPublisher;
 import com.calendar.R;
-import com.google.android.gms.ads.AdError;
-import com.google.android.gms.ads.AdRequest;
-import com.google.android.gms.ads.FullScreenContentCallback;
-import com.google.android.gms.ads.LoadAdError;
-import com.google.android.gms.ads.interstitial.InterstitialAd;
-import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback;
+import com.calendar.ReminderTimeHasPassedException;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -100,15 +98,21 @@ public class CreateEventActivity extends AppCompatActivity {
         if (shouldDeleteOldEvent(oldEvent, eventToSave)) {
             try {
                 deleteEvent(oldEvent);
-                NotificationPublisher.unScheduleNotification(oldEvent, this);
+                if (oldEvent.isReminderOn()) {
+                    NotificationPublisher.unScheduleNotification(oldEvent, this);
+                }
             } catch (Exception e) {
                 Log.i("Error", "Couldn't move event");
             }
         }
         try {
             saveEvent(eventToSave);
-            NotificationPublisher.scheduleNotification(eventToSave, this,
-                    eventController.prepareEventNotification(eventToSave));
+            if (eventToSave.isReminderOn()) {
+                NotificationPublisher.scheduleNotification(eventToSave, this,
+                        eventController.prepareEventNotification(eventToSave));
+            }
+        } catch (ReminderTimeHasPassedException e) {
+            Log.i("Couldn't save reminder", e.getMessage());
         } catch (Exception e) {
             Log.i("Error", "Couldn't save event");
         }

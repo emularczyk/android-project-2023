@@ -130,7 +130,7 @@ public class CalendarUtils {
         return null;
     }
 
-    public static void getEventsFromSnapshot(DataSnapshot dataSnapshot, String dateString, ArrayList<Event> eventList) {
+    public static void getCurrentEventsFromSnapshot(DataSnapshot dataSnapshot, String dateString, ArrayList<Event> eventList) {
         for (DataSnapshot snapshot : dataSnapshot.child(dateString).getChildren()) {
             String id = snapshot.getKey();
             String title = Objects.requireNonNull(snapshot.child("title").getValue()).toString();
@@ -155,7 +155,7 @@ public class CalendarUtils {
         }
     }
 
-    private static LocalTime getReminderTime(DataSnapshot snapshot) {
+    public static LocalTime getReminderTime(DataSnapshot snapshot) {
         return LocalTime.of(Integer.parseInt(snapshot.child("reminderTime").child("hour").getValue().toString()),
                 Integer.parseInt(snapshot.child("reminderTime").child("minute").getValue().toString()));
     }
