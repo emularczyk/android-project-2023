@@ -37,15 +37,7 @@ public class NotificationPublisher extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
 
-        NotificationManager notificationManager =
-                (NotificationManager)context.getSystemService(Context.NOTIFICATION_SERVICE);
-
-        String channelName = "Notification about event";
-        NotificationChannel chan = new NotificationChannel("com.calendar",
-                channelName, NotificationManager.IMPORTANCE_LOW);
-        chan.setLightColor(Color.BLUE);
-        chan.setLockscreenVisibility(Notification.VISIBILITY_PRIVATE);
-        notificationManager.createNotificationChannel(chan);
+        NotificationManager notificationManager = prepareNotificationManager(context);
 
         Notification notification = intent.getParcelableExtra(NOTIFICATION);
         int id = intent.getIntExtra(NOTIFICATION_ID, 0);
@@ -55,39 +47,15 @@ public class NotificationPublisher extends BroadcastReceiver {
 
     public static void scheduleNotificationForEventsFromDatabase(@NonNull final DataSnapshot dataSnapshot,
                                                                  final Context context) {
-        EventController eventController = new EventController(context);
         for (DataSnapshot snap : dataSnapshot.getChildren()) {
             String dateString = Objects.requireNonNull(snap.getKey());
             boolean isAnnual = dateString.contains("XXXX-");
 
             for (DataSnapshot snapshot : snap.getChildren()) {
-                String id = snapshot.getKey();
-                String title = Objects.requireNonNull(snapshot.child("title").getValue()).toString();
-                String note = snapshot.child("note").exists() ? snapshot.child("note").getValue().toString() : "";
-                boolean isSystemEvent = parseBoolean(Objects.requireNonNull(snapshot.child("isSystemEvent").getValue()).toString());
-                boolean isFree = parseBoolean(Objects.requireNonNull(snapshot.child("isFree").getValue()).toString());
-                boolean isReminderOn = parseBoolean(Objects.requireNonNull(snapshot.child("isReminderOn").getValue()).toString());
-                LocalTime reminderTimer = snapshot.child("reminderTime").exists() ? getReminderTime(snapshot) : null;
+                Event event = prepareEventFromSnapshot(dateString, isAnnual, snapshot);
 
-                if (isReminderOn) {
-                    Event event = new Event(
-                            id,
-                            title,
-                            dateString,
-                            note,
-                            isSystemEvent,
-                            isAnnual,
-                            isFree,
-                            isReminderOn,
-                            reminderTimer);
-
-                    try {
-                        NotificationPublisher.scheduleNotification(event, context,
-                                eventController.prepareEventNotification(event));
-                        Log.i("EventReminderOnBootSet", title + " " + dateString);
-                    } catch (ReminderTimeHasPassedException exception) {
-                        Log.i("Couldn't save reminder", exception.getMessage());
-                    }
+                if (event.isReminderOn()) {
+                    tryScheduleNotification(context, event);
                 }
             }
         }
@@ -97,19 +65,11 @@ public class NotificationPublisher extends BroadcastReceiver {
                                             final Notification notification) {
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(ALARM_SERVICE);
 
-        Intent notificationPublisherIntent = new Intent(context, NotificationPublisher.class);
-        int newNotificationId = eventToNotify.getId()
-                                           .hashCode();
-        notificationPublisherIntent.putExtra(NotificationPublisher.NOTIFICATION_ID, newNotificationId);
-        notificationPublisherIntent.putExtra(NotificationPublisher.NOTIFICATION, notification);
-
-        PendingIntent notificationPendingIntent = PendingIntent.getBroadcast(context,
-                newNotificationId,
-                notificationPublisherIntent,
-                0);
+        PendingIntent notificationPendingIntent =
+                prepareNotificationPendingIntent(eventToNotify, context, notification);
 
         ZonedDateTime zonedNotificationDateTime = getZonedReminderDateTime(eventToNotify);
-        if(eventToNotify.isAnnual()) {
+        if (eventToNotify.isAnnual()) {
             alarmManager.setRepeating(AlarmManager.RTC,
                                         zonedNotificationDateTime.toInstant()
                                                                  .toEpochMilli(),
@@ -138,31 +98,111 @@ public class NotificationPublisher extends BroadcastReceiver {
                 0);
 
         alarmManager.cancel(notificationPendingIntent);
-        Log.d("Alarm", "Alarm at " + oldEvent.getDate() + oldEvent.getReminderTime() + " cancelled");
+        Log.d("Alarm", "Alarm at " + oldEvent.getDate() +
+                oldEvent.getReminderTime() + " cancelled");
+    }
+
+    private static void tryScheduleNotification(Context context, Event event) {
+        EventController eventController = new EventController(context);
+        try {
+            NotificationPublisher.scheduleNotification(event, context,
+                    eventController.prepareEventNotification(event));
+            Log.i("EventReminderOnBootSet", event.getTitle() + " " + event.getDate());
+        } catch (ReminderTimeHasPassedException exception) {
+            Log.i("Couldn't save reminder", exception.getMessage());
+        }
+    }
+
+    @NonNull
+    private NotificationManager prepareNotificationManager(Context context) {
+        NotificationManager notificationManager =
+                (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+
+        String channelName = "Notification about event";
+        NotificationChannel chan = new NotificationChannel("com.calendar",
+                channelName, NotificationManager.IMPORTANCE_LOW);
+        chan.setLightColor(Color.BLUE);
+        chan.setLockscreenVisibility(Notification.VISIBILITY_PRIVATE);
+        notificationManager.createNotificationChannel(chan);
+        return notificationManager;
+    }
+
+    @NonNull
+    private static Event prepareEventFromSnapshot(String dateString, boolean isAnnual, DataSnapshot snapshot) {
+        String id = snapshot.getKey();
+        String title = Objects.requireNonNull(snapshot.child("title").getValue()).toString();
+        String note = snapshot.child("note").exists() ? snapshot.child("note").getValue().toString() : "";
+        boolean isSystemEvent = parseBoolean(Objects.requireNonNull(snapshot.child("isSystemEvent").getValue()).toString());
+        boolean isFree = parseBoolean(Objects.requireNonNull(snapshot.child("isFree").getValue()).toString());
+        boolean isReminderOn = parseBoolean(Objects.requireNonNull(snapshot.child("isReminderOn").getValue()).toString());
+        LocalTime reminderTimer = snapshot.child("reminderTime").exists() ? getReminderTime(snapshot) : null;
+
+        return new Event(
+                id,
+                title,
+                dateString,
+                note,
+                isSystemEvent,
+                isAnnual,
+                isFree,
+                isReminderOn,
+                reminderTimer);
+    }
+
+    private static PendingIntent prepareNotificationPendingIntent(Event eventToNotify,
+                                                                  Context context,
+                                                                  Notification notification) {
+        Intent notificationPublisherIntent = new Intent(context, NotificationPublisher.class);
+        int newNotificationId = eventToNotify.getId()
+                .hashCode();
+        notificationPublisherIntent.putExtra(NotificationPublisher.NOTIFICATION_ID, newNotificationId);
+        notificationPublisherIntent.putExtra(NotificationPublisher.NOTIFICATION, notification);
+
+        return PendingIntent.getBroadcast(context,
+                newNotificationId, notificationPublisherIntent, 0);
     }
 
     private static ZonedDateTime getZonedReminderDateTime(Event eventToNotify) {
         LocalTime reminderTime = eventToNotify.getReminderTime();
 
-        if(reminderTime == null) {
+        if (reminderTime == null) {
             reminderTime = DEFAULT_REMINDER_TIME;
         }
 
-        String eventDate = eventToNotify.getDate();
-        if (eventToNotify.isAnnual()) {
-            eventDate = eventDate.replace("XXXX", CalendarUtils.yearFromDate(LocalDate.now()));
-        }
-
-        LocalDate reminderDate = LocalDate.parse(eventDate);
-        if (reminderDate.isBefore(LocalDate.now())) {
-            if (eventToNotify.isAnnual()) {
-                reminderDate = reminderDate.plusYears(1);
-            } else {
-                throw new ReminderTimeHasPassedException(eventToNotify.getId());
-            }
-        }
+        LocalDate reminderDate = prepareReminderDate(eventToNotify);
 
         return LocalDateTime.of(reminderDate, reminderTime)
                             .atZone(ZoneId.systemDefault());
+    }
+
+    private static LocalDate prepareReminderDate(Event eventToNotify) {
+        String eventDate = eventToNotify.getDate();
+        LocalDate currentDate = LocalDate.now();
+        if (eventToNotify.isAnnual()) {
+            eventDate = prepareNotAnnualDateString(eventDate);
+        }
+
+        LocalDate reminderDate = LocalDate.parse(eventDate);
+        if (reminderDate.isBefore(currentDate)) {
+            reminderDate = addYearIfAnnualOrThrowException(eventToNotify, reminderDate);
+        }
+        return reminderDate;
+    }
+
+    @NonNull
+    private static String prepareNotAnnualDateString(String eventDate) {
+        LocalDate currentDate = LocalDate.now();
+        eventDate = eventDate.replace("XXXX", CalendarUtils.yearFromDate(currentDate));
+        return eventDate;
+    }
+
+    private static LocalDate addYearIfAnnualOrThrowException(Event eventToNotify,
+                                                             LocalDate reminderDate) {
+        if (eventToNotify.isAnnual()) {
+            reminderDate = reminderDate.plusYears(1);
+        } else {
+            throw new ReminderTimeHasPassedException(eventToNotify.getId());
+        }
+        return reminderDate;
     }
 }
