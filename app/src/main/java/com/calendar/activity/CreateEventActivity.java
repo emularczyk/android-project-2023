@@ -7,7 +7,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.DatePicker;
 import android.widget.EditText;
@@ -16,15 +15,13 @@ import android.widget.TimePicker;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.calendar.AdController;
 import com.calendar.CalendarUtils;
 import com.calendar.Event;
+import com.calendar.EventController;
+import com.calendar.NotificationPublisher;
 import com.calendar.R;
-import com.google.android.gms.ads.AdError;
-import com.google.android.gms.ads.AdRequest;
-import com.google.android.gms.ads.FullScreenContentCallback;
-import com.google.android.gms.ads.LoadAdError;
-import com.google.android.gms.ads.interstitial.InterstitialAd;
-import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback;
+import com.calendar.ReminderTimeHasPassedException;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -39,20 +36,20 @@ import java.util.UUID;
 
 public class CreateEventActivity extends AppCompatActivity {
 
-    EditText titleText;
-    DatePicker datePicker;
-    EditText noteText;
-    CheckBox advancedSettingsCheckBox;
-    TimePicker timePicker;
-    CheckBox annualCheckBox;
-    CheckBox reminderCheckBox;
-    CheckBox reminderTimeCheckBox;
-    CheckBox freeCheckBox;
-    Button saveButton;
+    private AdController adController;
+    private EventController eventController;
+    private EditText titleText;
+    private DatePicker datePicker;
+    private EditText noteText;
+    private CheckBox advancedSettingsCheckBox;
+    private TimePicker timePicker;
+    private CheckBox annualCheckBox;
+    private CheckBox reminderCheckBox;
+    private CheckBox reminderTimeCheckBox;
+    private CheckBox freeCheckBox;
     private LocalDate selectedDate;
     private String eventId = UUID.randomUUID().toString();
     private Event oldEvent = null;
-    private InterstitialAd interstitialAd;
 
 
     @Override
@@ -64,9 +61,8 @@ public class CreateEventActivity extends AppCompatActivity {
         setupCalendar();
         setupTimer();
         updateExtras();
-        AdRequest adRequest = new AdRequest.Builder()
-                                           .build();
-        loadAdd(adRequest);
+        adController = new AdController(this);
+        eventController = new EventController(this);
     }
 
     public void showAdvancedOptions(View view) {
@@ -102,72 +98,27 @@ public class CreateEventActivity extends AppCompatActivity {
         if (shouldDeleteOldEvent(oldEvent, eventToSave)) {
             try {
                 deleteEvent(oldEvent);
+                if (oldEvent.isReminderOn()) {
+                    NotificationPublisher.unScheduleNotification(oldEvent, this);
+                }
             } catch (Exception e) {
                 Log.i("Error", "Couldn't move event");
             }
         }
         try {
             saveEvent(eventToSave);
+            if (eventToSave.isReminderOn()) {
+                NotificationPublisher.scheduleNotification(eventToSave, this,
+                        eventController.prepareEventNotification(eventToSave));
+            }
+        } catch (ReminderTimeHasPassedException e) {
+            Log.i("Couldn't save reminder", e.getMessage());
         } catch (Exception e) {
             Log.i("Error", "Couldn't save event");
         }
-        if (interstitialAd != null) {
-            setAdAsFullContent();
-            interstitialAd.show(getParent());
-        } else {
-            Log.d("TAG", "The interstitial ad wasn't ready yet.");
-        }
+
+        adController.showFullContentAd(getParent());
         finish();
-    }
-
-    private void loadAdd(AdRequest adRequest) {
-        InterstitialAd.load(this,"ca-app-pub-3940256099942544/1033173712", adRequest,
-                new InterstitialAdLoadCallback() {
-                    @Override
-                    public void onAdLoaded(@NonNull InterstitialAd ad) {
-                        // The mInterstitialAd reference will be null until
-                        // an ad is loaded.
-                        interstitialAd = ad;
-                        Log.i(TAG, "onAdLoaded");
-                    }
-
-                    @Override
-                    public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
-                        Log.d(TAG, loadAdError.toString());
-                        interstitialAd = null;
-                    }
-                });
-    }
-
-    private void setAdAsFullContent() {
-        interstitialAd.setFullScreenContentCallback(new FullScreenContentCallback(){
-            @Override
-            public void onAdClicked() {
-                Log.d(TAG, "Ad was clicked.");
-            }
-
-            @Override
-            public void onAdDismissedFullScreenContent() {
-                Log.d(TAG, "Ad dismissed fullscreen content.");
-                interstitialAd = null;
-            }
-
-            @Override
-            public void onAdFailedToShowFullScreenContent(@NonNull AdError adError) {
-                Log.e(TAG, "Ad failed to show fullscreen content.");
-                interstitialAd = null;
-            }
-
-            @Override
-            public void onAdImpression() {
-                Log.d(TAG, "Ad recorded an impression.");
-            }
-
-            @Override
-            public void onAdShowedFullScreenContent() {
-                Log.d(TAG, "Ad showed fullscreen content.");
-            }
-        });
     }
 
     boolean shouldDeleteOldEvent(Event oldEvent, Event newEvent) {
@@ -222,7 +173,6 @@ public class CreateEventActivity extends AppCompatActivity {
         reminderCheckBox = findViewById(R.id.setReminder);
         reminderTimeCheckBox = findViewById(R.id.reminderTimeCheckBox);
         freeCheckBox = findViewById(R.id.free);
-        saveButton = findViewById(R.id.saveEventButton);
     }
 
     private void setupCalendar() {

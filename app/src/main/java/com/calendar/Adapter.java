@@ -64,12 +64,9 @@ public class Adapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         eventItemVH.getDeleteButton().setText(R.string.delete);
         eventItemVH.getDeleteButton().setOnClickListener(v -> deleteEvent(holder));
 
-        eventItemVH.getItemLayout().setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                ConstraintLayout itemLayout = ((EventItemViewHolder) holder).getConstraintLayout();
-                itemLayout.setVisibility(itemLayout.getVisibility() == View.VISIBLE ? View.GONE : View.VISIBLE);
-            }
+        eventItemVH.getItemLayout().setOnClickListener(view -> {
+            ConstraintLayout itemLayout = ((EventItemViewHolder) holder).getConstraintLayout();
+            itemLayout.setVisibility(itemLayout.getVisibility() == View.VISIBLE ? View.GONE : View.VISIBLE);
         });
     }
 
@@ -79,14 +76,16 @@ public class Adapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     }
 
     private void deleteEvent(@NonNull RecyclerView.ViewHolder holder) {
-        String eventId = eventList.get(holder.getAdapterPosition()).getId();
-        Query eventQuery = databaseReference.child(eventList.get(holder.getAdapterPosition()).getDate()).child(eventId);
+        Event currentEvent = eventList.get(holder.getAdapterPosition());
+        String eventId = currentEvent.getId();
+        Query eventQuery = databaseReference.child(currentEvent.getDate()).child(eventId);
         eventQuery.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 dataSnapshot.getRef().removeValue();
                 eventList.removeIf(event -> event.getId().equals(eventId));
                 notifyItemRemoved(holder.getAdapterPosition());
+                NotificationPublisher.unScheduleNotification(currentEvent, context.getApplicationContext());
             }
 
             @Override

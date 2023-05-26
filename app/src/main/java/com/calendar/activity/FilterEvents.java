@@ -117,8 +117,8 @@ public class FilterEvents extends AppCompatActivity {
 
     private void getEventsFromSnapshot(DataSnapshot dataSnapshot) {
         for (LocalDate date = startLocalDate; date.isBefore(endLocalDate.plusDays(1)); date = date.plusDays(1)) {
-            CalendarUtils.getEventsFromSnapshot(dataSnapshot, date.toString(), eventList);
-            CalendarUtils.getEventsFromSnapshot(dataSnapshot, convertDateStringToRegardlessOfTheYear(date.toString()), eventList);
+            CalendarUtils.getCurrentEventsFromSnapshot(dataSnapshot, date.toString(), eventList);
+            CalendarUtils.getCurrentEventsFromSnapshot(dataSnapshot, convertDateStringToRegardlessOfTheYear(date.toString()), eventList);
         }
     }
 
