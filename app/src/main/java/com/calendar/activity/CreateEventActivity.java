@@ -1,10 +1,12 @@
 package com.calendar.activity;
 
 import static android.content.ContentValues.TAG;
+import static com.calendar.CalendarUtils.convertDateStringToRegardlessOfTheYear;
 import static com.calendar.EventRepository.saveEvent;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Debug;
 import android.util.Log;
 import android.view.View;
 import android.widget.CheckBox;
@@ -70,15 +72,24 @@ public class CreateEventActivity extends AppCompatActivity {
             annualCheckBox.setVisibility(View.VISIBLE);
             reminderCheckBox.setVisibility(View.VISIBLE);
             freeCheckBox.setVisibility(View.VISIBLE);
+            showReminderTimeCheck();
+            showReminderClockCheck();
         } else {
             annualCheckBox.setVisibility(View.INVISIBLE);
             reminderCheckBox.setVisibility(View.INVISIBLE);
             freeCheckBox.setVisibility(View.INVISIBLE);
+            reminderTimeCheckBox.setVisibility(View.INVISIBLE);
+            timePicker.setVisibility(View.INVISIBLE);
         }
     }
 
     public void showReminderTimeCheckBox(View view) {
-        if (reminderCheckBox.isChecked()) {
+        showReminderTimeCheck();
+        showReminderClockCheck();
+    }
+
+    private void showReminderTimeCheck(){
+        if (advancedSettingsCheckBox.isChecked() && reminderCheckBox.isChecked()) {
             reminderTimeCheckBox.setVisibility(View.VISIBLE);
         } else {
             reminderTimeCheckBox.setVisibility(View.INVISIBLE);
@@ -86,7 +97,11 @@ public class CreateEventActivity extends AppCompatActivity {
     }
 
     public void showReminderClock(View view) {
-        if (reminderTimeCheckBox.isChecked()) {
+        showReminderClockCheck();
+    }
+
+    public void showReminderClockCheck() {
+        if (advancedSettingsCheckBox.isChecked()  && reminderCheckBox.isChecked() &&  reminderTimeCheckBox.isChecked()) {
             timePicker.setVisibility(View.VISIBLE);
         } else {
             timePicker.setVisibility(View.INVISIBLE);
@@ -123,9 +138,8 @@ public class CreateEventActivity extends AppCompatActivity {
 
     boolean shouldDeleteOldEvent(Event oldEvent, Event newEvent) {
         if (oldEvent != null) {
-            boolean areDatesNotEqual = !Objects.equals(oldEvent.getDate(), newEvent.getDate());
-            return oldEvent.isAnnual() != newEvent.isAnnual() ||
-                                          areDatesNotEqual;
+            boolean differentEventDates = Objects.equals(oldEvent.getDate(), convertDateStringToRegardlessOfTheYear(newEvent.getDate()));
+            return (oldEvent.isAnnual() != newEvent.isAnnual()) || !differentEventDates;
         }
         return false;
     }
@@ -146,7 +160,7 @@ public class CreateEventActivity extends AppCompatActivity {
             if (oldEvent.getReminderTime() != null) {
                 reminderTimeCheckBox.setChecked(true);
                 timePicker.setHour(oldEvent.getReminderTime().getHour());
-                timePicker.setHour(oldEvent.getReminderTime().getMinute());
+                timePicker.setMinute(oldEvent.getReminderTime().getMinute());
             }
             reloadViews();
         }
@@ -183,8 +197,6 @@ public class CreateEventActivity extends AppCompatActivity {
                 (datePicker, year, month, dayOfMonth) ->
                         selectedDate = LocalDate.of(year, month + 1, dayOfMonth));
         selectedDate = CalendarUtils.selectedDate;
-        timePicker.setHour(LocalTime.now().getHour());
-        timePicker.setHour(LocalTime.now().getMinute());
     }
 
     private void setupTimer() {
@@ -222,9 +234,9 @@ public class CreateEventActivity extends AppCompatActivity {
             event.setAnnual(annualCheckBox.isChecked());
             event.setFreeFromWork(freeCheckBox.isChecked());
             event.setReminderOn(reminderCheckBox.isChecked());
-        }
-        if (reminderTimeCheckBox.isChecked()) {
-            event.setReminderTime(LocalTime.of(timePicker.getHour(), timePicker.getMinute()));
+            if (reminderTimeCheckBox.isChecked()) {
+                event.setReminderTime(LocalTime.of(timePicker.getHour(), timePicker.getMinute()));
+            }
         }
         return event;
     }

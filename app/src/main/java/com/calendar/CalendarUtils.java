@@ -2,6 +2,8 @@ package com.calendar;
 
 import static java.lang.Boolean.parseBoolean;
 
+import android.util.Log;
+
 import com.google.firebase.database.DataSnapshot;
 
 import java.time.DayOfWeek;
@@ -137,8 +139,8 @@ public class CalendarUtils {
             String note = snapshot.child("note").exists() ? snapshot.child("note").getValue().toString() : "";
             boolean isSystemEvent = parseBoolean(Objects.requireNonNull(snapshot.child("isSystemEvent").getValue()).toString());
             boolean isAnnual = dateString.contains("XXXX-");
-            boolean isFree = parseBoolean(Objects.requireNonNull(snapshot.child("isSystemEvent").getValue()).toString());
-            boolean isReminderOn = parseBoolean(Objects.requireNonNull(snapshot.child("isSystemEvent").getValue()).toString());
+            boolean isFree = parseBoolean(Objects.requireNonNull(snapshot.child("isFree").getValue()).toString());
+            boolean isReminderOn = parseBoolean(Objects.requireNonNull(snapshot.child("isReminderOn").getValue()).toString());
             LocalTime reminderTimer = snapshot.child("reminderTime").exists() ? getReminderTime(snapshot) : null;
 
             Event event = new Event(
