@@ -138,8 +138,10 @@ public class CreateEventActivity extends AppCompatActivity {
 
     boolean shouldDeleteOldEvent(Event oldEvent, Event newEvent) {
         if (oldEvent != null) {
-            boolean differentEventDates = Objects.equals(oldEvent.getDate(), convertDateStringToRegardlessOfTheYear(newEvent.getDate()));
-            return (oldEvent.isAnnual() != newEvent.isAnnual()) || !differentEventDates;
+            Log.i("testShouldDelete",oldEvent.getDate()+newEvent.isAnnual()+convertDateStringToRegardlessOfTheYear(newEvent.getDate()));
+            boolean differentEventDates = !(convertDateStringToRegardlessOfTheYear(oldEvent.getDate()).equalsIgnoreCase(convertDateStringToRegardlessOfTheYear(newEvent.getDate())));
+            Log.i("testShouldDelete",String.valueOf(oldEvent.isAnnual())+newEvent.isAnnual()+differentEventDates);
+            return (oldEvent.isAnnual() != newEvent.isAnnual()) || differentEventDates;
         }
         return false;
     }
