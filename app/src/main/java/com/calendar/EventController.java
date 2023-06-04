@@ -18,7 +18,7 @@ public class EventController {
         builder.setContentTitle(event.getTitle());
         builder.setContentText(event.getNote());
         builder.setSubText(getNotificationDateTime(event));
-        builder.setSmallIcon(R.drawable.ic_launcher_foreground);
+        builder.setSmallIcon(R.drawable.baseline_calendar_month_24);
         return builder.build();
     }
 

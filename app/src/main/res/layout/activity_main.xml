@@ -5,7 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:id="@+id/drawer_layout"
+    android:id="@+id/main"
     tools:context=".activity.MainActivity"
     android:fitsSystemWindows="true"
     tools:openDrawer="start">
@@ -61,7 +61,7 @@
             android:layout_gravity="center"
             android:background="@null"
             android:onClick="createEvent"
-            android:text="Create event"
+            android:text="@string/create_event"
             android:textColor="?colorSecondary"
             android:textSize="20sp"
             android:textStyle="bold"

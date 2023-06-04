@@ -33,4 +33,5 @@
     <string name="selected_date_range">Selected date range:</string>
     <string name="date">Date</string>
     <string name="title">Title</string>
+    <string name="create_event">Create event</string>
 </resources>
