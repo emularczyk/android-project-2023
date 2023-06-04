@@ -40,7 +40,6 @@ public class CountDays extends AppCompatActivity {
     private TextView numberOfFreeDaysText;
     private TextView numberOfWorkingDaysText;
     private MaterialDatePicker<Pair<Long, Long>> materialDatePicker;
-    private int numberOfFreeDays = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

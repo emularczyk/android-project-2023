@@ -72,8 +72,7 @@ public class CreateEventActivity extends AppCompatActivity {
             annualCheckBox.setVisibility(View.VISIBLE);
             reminderCheckBox.setVisibility(View.VISIBLE);
             freeCheckBox.setVisibility(View.VISIBLE);
-            showReminderTimeCheck();
-            showReminderClockCheck();
+            showReminderTimeCheckBox(view);
         } else {
             annualCheckBox.setVisibility(View.INVISIBLE);
             reminderCheckBox.setVisibility(View.INVISIBLE);
@@ -89,23 +88,31 @@ public class CreateEventActivity extends AppCompatActivity {
     }
 
     private void showReminderTimeCheck(){
-        if (advancedSettingsCheckBox.isChecked() && reminderCheckBox.isChecked()) {
+        if (shouldDisplayReminderTime()) {
             reminderTimeCheckBox.setVisibility(View.VISIBLE);
         } else {
             reminderTimeCheckBox.setVisibility(View.INVISIBLE);
         }
     }
 
+    private boolean shouldDisplayReminderTime(){
+        return advancedSettingsCheckBox.isChecked() && reminderCheckBox.isChecked();
+    }
+
     public void showReminderClock(View view) {
         showReminderClockCheck();
     }
 
-    public void showReminderClockCheck() {
-        if (advancedSettingsCheckBox.isChecked()  && reminderCheckBox.isChecked() &&  reminderTimeCheckBox.isChecked()) {
+    private void showReminderClockCheck() {
+        if (shouldDisplayReminderClock()) {
             timePicker.setVisibility(View.VISIBLE);
         } else {
             timePicker.setVisibility(View.INVISIBLE);
         }
+    }
+
+    private boolean shouldDisplayReminderClock(){
+        return advancedSettingsCheckBox.isChecked()  && reminderCheckBox.isChecked() &&  reminderTimeCheckBox.isChecked();
     }
 
     public void buttonSaveEvent(View view) {
@@ -138,12 +145,14 @@ public class CreateEventActivity extends AppCompatActivity {
 
     boolean shouldDeleteOldEvent(Event oldEvent, Event newEvent) {
         if (oldEvent != null) {
-            Log.i("testShouldDelete",oldEvent.getDate()+newEvent.isAnnual()+convertDateStringToRegardlessOfTheYear(newEvent.getDate()));
-            boolean differentEventDates = !(convertDateStringToRegardlessOfTheYear(oldEvent.getDate()).equalsIgnoreCase(convertDateStringToRegardlessOfTheYear(newEvent.getDate())));
-            Log.i("testShouldDelete",String.valueOf(oldEvent.isAnnual())+newEvent.isAnnual()+differentEventDates);
-            return (oldEvent.isAnnual() != newEvent.isAnnual()) || differentEventDates;
+            return (oldEvent.isAnnual() != newEvent.isAnnual()) || areDifferentDates(oldEvent,newEvent);
         }
         return false;
+    }
+
+    private boolean areDifferentDates(Event oldEvent, Event newEvent){
+        return !(convertDateStringToRegardlessOfTheYear(oldEvent.getDate())
+                .equalsIgnoreCase(convertDateStringToRegardlessOfTheYear(newEvent.getDate())));
     }
 
     private void updateExtras() {

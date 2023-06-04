@@ -104,7 +104,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         actionBar.setHomeAsUpIndicator(R.drawable.ic_menu);
         actionBar.setDisplayHomeAsUpEnabled(true);
 
-        drawer = findViewById(R.id.drawer_layout);
+        drawer = findViewById(R.id.main);
         NavigationView drawerNavigation = findViewById(R.id.navigationView);
 
         drawerToggle = new ActionBarDrawerToggle(this, drawer,
