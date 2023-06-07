@@ -37,15 +37,24 @@ public class MainActivityTests {
 
     @Test
     public void checkMainActivityIsDisplayed() {
-        ActivityScenario activityScenario = ActivityScenario.launch(MainActivity.class);
+        ActivityScenario.launch(MainActivity.class);
         onView(withId(R.id.main)).check(matches(isDisplayed()));
     }
 
     @Test
     public void checkMainActivityView() {
-        ActivityScenario activityScenario = ActivityScenario.launch(MainActivity.class);
+        ActivityScenario.launch(MainActivity.class);
 
         onView(withId(R.id.createEvent))
                 .check(matches(withText(R.string.create_event)));
+    }
+
+    @Test
+    public void checkAddEventButton() {
+        ActivityScenario.launch(MainActivity.class);
+
+        onView(withId(R.id.createEvent)).perform(click());
+
+        onView(withId(R.id.addEvent)).check(matches(isDisplayed()));
     }
 }
