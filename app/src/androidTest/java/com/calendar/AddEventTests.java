@@ -12,6 +12,7 @@ import static org.junit.Assert.assertEquals;
 import android.content.Context;
 
 import androidx.test.core.app.ActivityScenario;
+import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.platform.app.InstrumentationRegistry;
 
@@ -31,14 +32,14 @@ public class AddEventTests {
 
     @Test
     public void checkAddEventIsDisplayed() {
-        ActivityScenario activityScenario = ActivityScenario.launch(CreateEventActivity.class);
+       ActivityScenario.launch(CreateEventActivity.class);
 
         onView(withId(R.id.addEvent)).check(matches(isDisplayed()));
     }
 
     @Test
     public void checkAddEventView() {
-        ActivityScenario activityScenario = ActivityScenario.launch(CreateEventActivity.class);
+        ActivityScenario.launch(CreateEventActivity.class);
 
         onView(withId(R.id.title))
                 .check(matches(withHint(R.string.enter_title)));
@@ -54,7 +55,7 @@ public class AddEventTests {
 
     @Test
     public void checkAddEventWithAdvancedSettingsView() {
-        ActivityScenario activityScenario = ActivityScenario.launch(CreateEventActivity.class);
+        ActivityScenario.launch(CreateEventActivity.class);
 
         onView(withId(R.id.advancedSettings))
                 .perform(click())
