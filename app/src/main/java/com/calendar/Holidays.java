@@ -7,8 +7,14 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Class with system events
+ */
 public class Holidays {
 
+    /**
+     * Saves list with non fluid events in event repository
+     */
     public static void addHolidays() {
         List<Event> holidays = new ArrayList<>();
 
@@ -52,6 +58,10 @@ public class Holidays {
         saveEventListRegardlessOfTheYear(holidays);
     }
 
+    /**
+     * Saves list with fluid events in event repository
+     * @param year a year which the event list should be returned
+     */
     public static void addFluidHolidays(int year) {
         List<Event> fluidHolidays = new ArrayList<>();
 
@@ -77,6 +87,11 @@ public class Holidays {
         saveEventList(fluidHolidays);
     }
 
+    /**
+     * Calculates Easter sunday for given year
+     * @param year a year for which the Easter sunday will be returned
+     * @return the Easter sunday in a given year
+     */
     static LocalDate calculateEasterSunday(int year) {
         int d = calculateD(year);
         int e = calculateE(year, d);

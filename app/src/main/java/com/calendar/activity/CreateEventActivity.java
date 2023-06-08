@@ -36,6 +36,9 @@ import java.time.LocalTime;
 import java.util.Objects;
 import java.util.UUID;
 
+/**
+ * Activity for creating events
+ */
 public class CreateEventActivity extends AppCompatActivity {
 
     private AdController adController;

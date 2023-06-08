@@ -23,13 +23,16 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 
-public class Adapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+/**
+ * Container view for event items
+ */
+public class EventAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     public ArrayList<Event> eventList;
     private final DatabaseReference databaseReference;
     private final Context context;
 
-    public Adapter(ArrayList<Event> eventList, Context context) {
+    public EventAdapter(ArrayList<Event> eventList, Context context) {
         this.eventList = eventList;
         this.context = context;
         this.databaseReference = FirebaseDatabase.

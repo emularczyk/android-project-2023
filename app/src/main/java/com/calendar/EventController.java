@@ -3,15 +3,22 @@ package com.calendar;
 import android.app.Notification;
 import android.content.Context;
 
+/**
+ * Class used to operate on events
+ */
 public class EventController {
 
     private static final String PACKAGE_NAME = "com.calendar";
-    private Context context;
+    private final Context context;
 
     public EventController(Context context) {
         this.context = context;
     }
 
+    /**
+     * @param event event data
+     * @return notification prepared with event data
+     */
     public Notification prepareEventNotification(final Event event) {
         Notification.Builder builder
                 = new Notification.Builder(context, PACKAGE_NAME);

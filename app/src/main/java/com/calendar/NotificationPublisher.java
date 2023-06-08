@@ -28,12 +28,21 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Objects;
 
+/**
+ * Broadcast Receiver which prepares and set up alarm manager with notification
+ */
 public class NotificationPublisher extends BroadcastReceiver {
 
     public static final LocalTime DEFAULT_REMINDER_TIME = LocalTime.NOON.minusHours(2);
     public static String NOTIFICATION_ID = "notification-id";
     public static String NOTIFICATION = "notification";
 
+
+    /**
+     * Method automatically invoke by for example alarm manager
+     * @param context application context
+     * @param intent intent
+     */
     @Override
     public void onReceive(Context context, Intent intent) {
 
@@ -45,6 +54,11 @@ public class NotificationPublisher extends BroadcastReceiver {
         Log.d("Notification publisher", "Notification has been published");
     }
 
+    /**
+     * Method used to schedule notification for given events with alarm manager
+     * @param dataSnapshot events from database
+     * @param context application context
+     */
     public static void scheduleNotificationForEventsFromDatabase(@NonNull final DataSnapshot dataSnapshot,
                                                                  final Context context) {
         for (DataSnapshot snap : dataSnapshot.getChildren()) {
@@ -61,6 +75,12 @@ public class NotificationPublisher extends BroadcastReceiver {
         }
     }
 
+    /**
+     * Method used to schedule notification for given event with alarm manager
+     * @param eventToNotify event data
+     * @param context application context
+     * @param notification prepared notification
+     */
     public static void scheduleNotification(final Event eventToNotify, final Context context,
                                             final Notification notification) {
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(ALARM_SERVICE);
@@ -85,6 +105,11 @@ public class NotificationPublisher extends BroadcastReceiver {
         }
     }
 
+    /**
+     * Remove scheduled alarm manager process
+     * @param oldEvent old event data to unscheduled notification
+     * @param context application context
+     */
     public static void unScheduleNotification(Event oldEvent, final Context context) {
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(ALARM_SERVICE);
 

@@ -18,6 +18,9 @@ import com.calendar.R;
 
 import java.time.LocalDate;
 
+/**
+ * Fragment class for a month view
+ */
 public class MonthlyViewFragment extends Fragment {
 
     private CalendarView calendarView;
