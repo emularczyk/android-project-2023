@@ -25,6 +25,9 @@ import com.calendar.R;
 import java.time.LocalDate;
 import java.util.ArrayList;
 
+/**
+ * Fragment class for a year view
+ */
 public class YearViewFragment extends Fragment implements CalendarAdapter.OnItemListener {
 
     private TextView monthYearText;

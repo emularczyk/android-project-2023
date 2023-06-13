@@ -31,7 +31,10 @@ import java.util.Date;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class CountDays extends AppCompatActivity {
+/**
+ * Activity for counting free and not free days
+ */
+public class CountDaysActivity extends AppCompatActivity {
 
     private static final DatabaseReference databaseReference = FirebaseDatabase.getInstance()
             .getReference("Calendar");

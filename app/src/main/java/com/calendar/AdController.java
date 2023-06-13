@@ -15,16 +15,27 @@ import com.google.android.gms.ads.LoadAdError;
 import com.google.android.gms.ads.interstitial.InterstitialAd;
 import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback;
 
+/**
+ * Class used to operate on ads
+ */
 public class AdController {
 
     private InterstitialAd interstitialAd;
 
+    /**
+     * Prepare ad request
+     * @param context application context
+     */
     public AdController(Context context) {
         AdRequest adRequest = new AdRequest.Builder()
                 .build();
         loadAdd(adRequest, context);
     }
 
+    /**
+     * Shows full content add
+     * @param parent activity from which is invoked
+     */
     public void showFullContentAd(final Activity parent) {
         if (interstitialAd != null) {
             prepareFullContentAd();

@@ -7,6 +7,9 @@ import android.widget.TextView;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.RecyclerView;
 
+/**
+ * Item for event list view
+ */
 public class EventItemViewHolder extends RecyclerView.ViewHolder {
     private TextView titleTextView;
     private TextView dateTextView;

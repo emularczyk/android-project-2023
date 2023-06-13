@@ -22,6 +22,9 @@ import com.calendar.R;
 import java.time.LocalDate;
 import java.util.ArrayList;
 
+/**
+ * Fragment class for a week view
+ */
 public class WeekViewFragment extends Fragment implements CalendarAdapter.OnItemListener
 {
     private TextView monthYearText;

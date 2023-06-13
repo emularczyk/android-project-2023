@@ -15,7 +15,7 @@ import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.calendar.Adapter;
+import com.calendar.EventAdapter;
 import com.calendar.CalendarUtils;
 import com.calendar.Event;
 import com.calendar.R;
@@ -31,12 +31,15 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 
+/**
+ * Activity with filtered events
+ */
 public class FilterEvents extends AppCompatActivity {
 
     private static final DatabaseReference databaseReference = FirebaseDatabase.getInstance()
             .getReference("Calendar");
     private static final ArrayList<Event> eventList = new ArrayList<>();
-    private Adapter adapter;
+    private EventAdapter eventAdapter;
     private RecyclerView recyclerView;
     private TextView dateRangeText;
     private MaterialDatePicker<Pair<Long, Long>> materialDatePicker;
@@ -72,17 +75,17 @@ public class FilterEvents extends AppCompatActivity {
     }
 
     private void setAdapter(){
-        adapter = new Adapter(eventList, FilterEvents.this);
-        recyclerView.setAdapter(adapter);
+        eventAdapter = new EventAdapter(eventList, FilterEvents.this);
+        recyclerView.setAdapter(eventAdapter);
     }
 
     public void setEventRecyclerView() {
-        adapter = new Adapter(eventList, FilterEvents.this);
+        eventAdapter = new EventAdapter(eventList, FilterEvents.this);
         recyclerView = findViewById(R.id.recyclerView);
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(FilterEvents.this);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.addItemDecoration(new DividerItemDecoration(FilterEvents.this, DividerItemDecoration.VERTICAL));
-        recyclerView.setAdapter(adapter);
+        recyclerView.setAdapter(eventAdapter);
     }
 
     private void setGuiComponents() {

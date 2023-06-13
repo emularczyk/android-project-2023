@@ -17,11 +17,19 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+/**
+ * Broadcast Receiver which set notifications for events from database on device booted event
+ */
 public class EventNotificationSchedulerBroadcastReceiver extends BroadcastReceiver {
 
     static final String ACTION_BOOT_COMPLETED = "android.intent.action.BOOT_COMPLETED";
     static final String MY_PACKAGE_REPLACED = "android.intent.action.MY_PACKAGE_REPLACED";
 
+    /**
+     * Method automatically invoke by system
+     * @param context application context
+     * @param intent intent
+     */
     @Override
     public void onReceive(Context context, Intent intent) {
         if (remindersShouldBeSet(intent)) {

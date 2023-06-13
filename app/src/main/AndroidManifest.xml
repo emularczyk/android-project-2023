@@ -22,7 +22,7 @@
             android:exported="false"
             android:parentActivityName=".activity.MainActivity" />
         <activity
-            android:name=".activity.CountDays"
+            android:name=".activity.CountDaysActivity"
             android:exported="false"
             android:parentActivityName=".activity.MainActivity" />
         <activity

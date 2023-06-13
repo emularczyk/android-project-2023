@@ -6,6 +6,9 @@ import java.io.Serializable;
 import java.time.LocalTime;
 import java.util.UUID;
 
+/**
+ * Structure for database data for event
+ */
 public class Event implements Serializable {
 
     private String id;

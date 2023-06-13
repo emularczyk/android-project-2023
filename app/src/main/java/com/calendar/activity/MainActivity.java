@@ -29,7 +29,7 @@ import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.calendar.Adapter;
+import com.calendar.EventAdapter;
 import com.calendar.EventNotificationSchedulerBroadcastReceiver;
 import com.calendar.CalendarUtils;
 import com.calendar.Event;
@@ -48,12 +48,15 @@ import com.google.firebase.database.ValueEventListener;
 import java.time.LocalDate;
 import java.util.ArrayList;
 
+/**
+ * From here the application starts
+ */
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     public static final String BROADCAST = "calendar.android.action.APP_OPENED";
     private static final ArrayList<Event> eventList = new ArrayList<>();
     private DatabaseReference databaseReference;
-    private Adapter adapter;
+    private EventAdapter eventAdapter;
     private RecyclerView recyclerView;
     private FragmentManager fragmentManager;
     private DrawerLayout drawer;
@@ -129,17 +132,21 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         setEventRecyclerView();
     }
 
+    /**
+     * Method invoked when user clicks create event button
+     * @param view context view
+     */
     public void createEvent(View view) {
         startActivity(new Intent(this, CreateEventActivity.class));
     }
 
     public void setEventRecyclerView() {
-        adapter = new Adapter(eventList, MainActivity.this);
+        eventAdapter = new EventAdapter(eventList, MainActivity.this);
         recyclerView = findViewById(R.id.recyclerView);
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(MainActivity.this);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.addItemDecoration(new DividerItemDecoration(MainActivity.this, DividerItemDecoration.VERTICAL));
-        recyclerView.setAdapter(adapter);
+        recyclerView.setAdapter(eventAdapter);
     }
 
     public void notifyChange() {
@@ -149,8 +156,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 eventList.clear();
                 CalendarUtils.getCurrentEventsFromSnapshot(dataSnapshot, getCurrentDateString(), eventList);
                 CalendarUtils.getCurrentEventsFromSnapshot(dataSnapshot, convertDateStringToRegardlessOfTheYear(getCurrentDateString()), eventList);
-                adapter = new Adapter(eventList, MainActivity.this);
-                recyclerView.setAdapter(adapter);
+                eventAdapter = new EventAdapter(eventList, MainActivity.this);
+                recyclerView.setAdapter(eventAdapter);
             }
 
             @Override
@@ -160,6 +167,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         });
     }
 
+    /**
+     * Method invoked when user clicks back button
+     */
     @Override
     public void onBackPressed() {
         if (drawer.isDrawerOpen(GravityCompat.START)) {
@@ -169,6 +179,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
+    /**
+     * Method invoked when user clicks options button
+     */
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
@@ -236,7 +249,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 datePicker.show();
                 break;
             case R.id.count_free_days:
-                startActivity(new Intent(this, CountDays.class));
+                startActivity(new Intent(this, CountDaysActivity.class));
                 break;
             case R.id.filetr_events:
                 startActivity(new Intent(this, FilterEvents.class));
@@ -245,9 +258,5 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         drawer.closeDrawer(GravityCompat.START);
 
         return true;
-    }
-
-    public static ArrayList<Event> getEventList() {
-        return eventList;
     }
 }
